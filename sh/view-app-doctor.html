@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor's Appointments</title>
+    <link href="./css/style.css" rel="stylesheet">
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .card-custom {
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            margin-bottom: 30px;
+        }
+
+        .table th {
+            background-color: #007bff;
+            color: #fff;
+            text-align: center;
+        }
+
+        .table td {
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .badge-status {
+            font-size: 0.85rem;
+            padding: 5px 12px;
+            border-radius: 12px;
+        }
+
+        .badge-BOOKED {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .badge-APPROVED {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        .badge-D_CANCELLED {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        .badge-P_CANCELLED {
+            background-color: #fd7e14;
+            color: #fff;
+        }
+
+        .badge-COMPLETED {
+            background-color: #20c997;
+            color: #fff;
+        }
+
+        .action-btn {
+            margin: 2px;
+            min-width: 75px;
+        }
+
+        .btn-search,
+        .btn-go {
+            background: #007bff;
+            color: #fff;
+            border-radius: 8px;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            height: 100%;
+        }
+
+        .btn-search:hover,
+        .btn-go:hover {
+            background: #0056b3;
+        }
+
+        .pagination .page-item .page-link {
+            color: #007bff;
+            border-radius: 0.25rem;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: #fff;
+        }
+
+        .pagination .page-link:hover {
+            background-color: #e9ecef;
+        }
+
+        /* Snackbar (Toast) */
+        #snackbar {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #000000;
+            color: #ffffff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 16px;
+            position: fixed;
+            z-index: 999;
+            left: 50%;
+            bottom: 30px;
+            font-size: 17px;
+            transform: translateX(-50%);
+        }
+
+        #snackbar.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
+
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* background-color: rgba(0, 0, 0, 0.3); Semi-transparent */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<!-- Snackbar (Toast) -->
+<div id="snackbar"></div>
+
+<body>
+    <div id="header"></div>
+    <div class="container mt-5">
+        <div class="card card-custom p-4">
+            <h4 class="mb-4 text-primary">Doctor's Appointment Management</h4>
+
+            <form class="row gx-3 gy-2 mb-4 align-items-end"
+                onsubmit="event.preventDefault(); loadDoctorAppointments();">
+                <div class="col-md-2">
+                    <label for="patientName" class="form-label">Patient Name</label>
+                    <input type="text" class="form-control" id="patientName" placeholder="Enter patient name">
+                </div>
+                <div class="col-md-2">
+                    <label for="slotId" class="form-label">Slot ID</label>
+                    <input type="number" class="form-control" id="slotId" placeholder="Enter slot ID">
+                </div>
+                <div class="col-md-2">
+                    <label for="appointmentDate" class="form-label">Date</label>
+                    <input type="date" class="form-control" id="appointmentDate">
+                </div>
+                <div class="col-md-2">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status">
+                        <option value="">All</option>
+                        <option value="BOOKED">Booked</option>
+                        <option value="APPROVED">Approved</option>
+                        <option value="D_CANCELLED">Doctor Cancelled</option>
+                        <option value="P_CANCELLED">Patient Cancelled</option>
+                        <option value="COMPLETED">Completed</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="sortBy" class="form-label">Sort By</label>
+                    <div class="input-group">
+                        <select class="form-select" id="sortBy">
+                            <option value="">Default</option>
+                            <option value="availability.date,asc">Date ↑</option>
+                            <option value="availability.date,desc">Date ↓</option>
+                            <option value="createdAt,desc">Recently Booked</option>
+                            <option value="updatedAt,desc">Recently Updated</option>
+                            <option value="status,asc">Status ↑</option>
+                            <option value="status,desc">Status ↓</option>
+                            <option value="id,asc">ID ↑</option>
+                            <option value="id,desc">ID ↓</option>
+                        </select>
+                        <button type="submit" class="btn btn-search">Search</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Loader Overlay -->
+            <div id="loaderOverlay" class="loader-overlay" style="display: none;">
+                <div class="spinner"></div>
+            </div>
+
+            <div id="doctorAppointmentsResult"></div>
+        </div>
+    </div>
+
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/constant.js"></script>
+    <script src="./js/jquery-3.6.0.min.js"></script>
+    <script src="./js/common.js"></script>
+    <script>
+        let currentPage = 0;
+        let totalPages = 0;
+
+        $("#sortBy").change(function () {
+            loadDoctorAppointments(0);
+        });
+
+        function loadDoctorAppointments(page = 0) {
+            if (validateUser('doctor')) {
+                $('#loaderOverlay').show();
+                const token = localStorage.getItem("aSessionId");
+                const role = localStorage.getItem("role");
+
+                const name = document.getElementById('patientName').value;
+                const slotId = document.getElementById('slotId').value;
+                const date = document.getElementById('appointmentDate').value;
+                const status = document.getElementById('status').value;
+                const sortBy = document.getElementById('sortBy').value;
+
+                const url = `${VIEW_ALL_APPOINTMENTS}?name=${encodeURIComponent(name)}&slotId=${slotId}&date=${date}&status=${status}&page=${page}&size=10&sort=${sortBy}`;
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    headers: { 'Authorization': "Bearer " + token },
+                    success: function (response, textStatus, jqXHR) {
+                        if (jqXHR.status === 204) {
+                            renderDoctorAppointments({ data: [], totalPages: 0, currentPage: 0, isFirstPage: true, isLastPage: true });
+                            $('#loaderOverlay').hide();
+                            return;
+                        }
+                        renderDoctorAppointments(response.content);
+                        $('#loaderOverlay').hide();
+                    },
+                    error: function (xhr) {
+                        let msg = "Failed to load Appointments";
+                        if (xhr && xhr.responseJSON && xhr.responseText) {
+                            if (xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                msg = xhr.responseText;
+                            }
+                        }
+                        $('#loaderOverlay').hide();
+                        showToast(msg);
+                    }
+                });
+            }
+        }
+
+        function renderDoctorAppointments(data) {
+            totalPages = data.totalPages;
+            if (!data.data.length) {
+                document.getElementById('doctorAppointmentsResult').innerHTML = '<div class="alert alert-warning">No appointments found.</div>';
+                return;
+            }
+
+            let html = '<div class="table-responsive"><table class="table table-hover align-middle">'
+                + '<thead class="table-primary"><tr>'
+                + '<th>ID</th><th>Slot ID</th><th>Patient</th><th>Date</th><th>Time</th><th>Status</th><th>Actions</th>'
+                + '</tr></thead><tbody>';
+
+            data.data.forEach(a => {
+                const viewHrefHtml = `slot-details.html?slotId=${a.slotId}&appointmentId=${a.id}`;
+                html += `<tr>
+                <td>${a.id}</td>
+                <td>${a.slotId}</td>
+                <td>${a.patientName}</td>
+                <td>${a.date}</td>
+                <td>${a.from} - ${a.to}</td>
+                <td><span class="badge-status badge-${a.status}">${a.status}</span></td>
+                <td>`;
+                html += `<a class="btn btn-sm btn-outline-info action-btn" href="${viewHrefHtml}">View</a>`;
+                if (a.status === 'BOOKED') html += `<button class="btn btn-sm btn-outline-success action-btn" onclick="changeStatus(${a.id}, 'APPROVED')">Approve</button>`;
+                if (a.status === 'APPROVED') html += `<button class="btn btn-sm btn-outline-success action-btn" onclick="changeStatus(${a.id}, 'COMPLETED')">Complete</button>`;
+                if (['BOOKED', 'APPROVED'].includes(a.status)) html += `<button class="btn btn-sm btn-outline-danger action-btn" onclick="changeStatus(${a.id}, 'D_CANCELLED')">Cancel</button>`;
+                html += '</td></tr>';
+            });
+
+            html += '</tbody></table></div>';
+
+            html += '<nav class="d-flex justify-content-between align-items-center"><ul class="pagination mb-0">';
+            html += `<li class="page-item ${data.isFirstPage ? 'disabled' : ''}"><button class="page-link" onclick="loadDoctorAppointments(0)">«</button></li>`;
+            html += `<li class="page-item ${data.isFirstPage ? 'disabled' : ''}"><button class="page-link" onclick="loadDoctorAppointments(${data.currentPage - 1})">‹</button></li>`;
+
+            const maxPages = 5;
+            let start = Math.max(0, data.currentPage - Math.floor(maxPages / 2));
+            let end = Math.min(totalPages, start + maxPages);
+            for (let i = start; i < end; i++) {
+                html += `<li class="page-item ${i === data.currentPage ? 'active' : ''}"><button class="page-link" onclick="loadDoctorAppointments(${i})">${i + 1}</button></li>`;
+            }
+
+            html += `<li class="page-item ${data.isLastPage ? 'disabled' : ''}"><button class="page-link" onclick="loadDoctorAppointments(${data.currentPage + 1})">›</button></li>`;
+            html += `<li class="page-item ${data.isLastPage ? 'disabled' : ''}"><button class="page-link" onclick="loadDoctorAppointments(${totalPages - 1})">»</button></li>`;
+            html += '</ul>';
+
+            html += '<div class="input-group" style="width:150px;">'
+                + '<input type="number" id="gotoPageInput" class="form-control" placeholder="Page" min="1" max="' + totalPages + '">'
+                + '<button class="btn btn-go" onclick="gotoPg()">Go</button>'
+                + '</div></nav>';
+
+            document.getElementById('doctorAppointmentsResult').innerHTML = html;
+            currentPage = data.currentPage;
+        }
+
+        function gotoPg() {
+            const pg = parseInt(document.getElementById('gotoPageInput').value);
+            if (pg > 0 && pg <= totalPages) loadDoctorAppointments(pg - 1);
+        }
+
+        function changeStatus(id, status) {
+            if (validateUser('doctor')) {
+                const token = localStorage.getItem("aSessionId");
+                const role = localStorage.getItem("role");
+
+                if (confirm('Change to ' + status + '?')) {
+                    $('#loaderOverlay').show();
+                    $.ajax({
+                    url: `${CHANGE_APPOINTMENT_STATUS}/${id}?status=${status}`,
+                    method: 'PATCH',
+                    headers: { 'Authorization': "Bearer " + token },
+                    success: function (response) {
+                        showToast(response.message);
+                        loadDoctorAppointments(currentPage);
+                        $('#loaderOverlay').hide();
+                    },
+                    error: function (xhr) {
+                        let msg = "Failed to change Appointment status";
+                        if (xhr && xhr.responseJSON && xhr.responseText) {
+                            if (xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                msg = xhr.responseText;
+                            }
+                        }
+                        showToast(msg);
+                        $('#loaderOverlay').hide();
+                    }
+                });
+                }
+            }
+        }
+
+        loadDoctorAppointments();
+
+        function validateUser(requiredRole) {
+            const token = localStorage.getItem("aSessionId");
+            const role = localStorage.getItem("role");
+            const expiry = localStorage.getItem("tokenExpiry");
+            const now = new Date().getTime();
+
+            if (!token || !role) {
+                showToastAndRedirectTo("Unauthorized! Please login first.", 2000, "login.html");
+            } else if (!expiry || now > expiry) {
+                localStorage.removeItem("aSessionId");
+                localStorage.removeItem("role");
+                localStorage.removeItem("tokenExpiry");
+                showToastAndRedirectTo("Session expired. Please login again.", 2000, "login.html");
+            } else if (requiredRole !== role) {
+                showToastAndRedirectTo("You don't have access to this page.", 2000, "index.html");
+            } else {
+                return true;
+            }
+            return false;
+        }
+
+        function showToast(message) {
+            const snackbar = $("#snackbar");
+            snackbar.text(message).addClass("show");
+            setTimeout(() => {
+                snackbar.removeClass("show");
+            }, 3000);
+        }
+
+        function showToastAndRedirectTo(message, delay = 2000, redirect) {
+            const snackbar = $("#snackbar");
+            snackbar.text(message).addClass("show");
+
+            setTimeout(() => {
+                snackbar.removeClass("show");
+                window.location.replace(redirect);
+            }, delay);
+        }
+    </script>
+</body>
+
+</html>

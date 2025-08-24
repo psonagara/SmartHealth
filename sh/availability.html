@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Doctor Availability</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <link href="./css/style.css" rel="stylesheet">
+  <link href="./css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f5f7fa;
+    }
+
+    h2 {
+      font-weight: 700;
+      margin-bottom: 30px;
+    }
+
+    .section-header {
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      padding: 12px 20px;
+      font-weight: 500;
+      margin-top: 20px;
+      border-radius: 5px 5px 0 0;
+    }
+
+    .section-body {
+      display: none;
+      background-color: white;
+      border: 1px solid #dee2e6;
+      padding: 25px;
+      border-top: none;
+      border-radius: 0 0 5px 5px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .slot-row,
+    .manual-slot-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+
+    .btn-rounded {
+      border-radius: 50px;
+    }
+
+    .form-section {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      font-weight: 500;
+    }
+
+
+    #snackbar {
+      visibility: hidden;
+      min-width: 250px;
+      background-color: #323232;
+      color: #fff;
+      text-align: center;
+      border-radius: 4px;
+      padding: 16px;
+      position: fixed;
+      z-index: 999;
+      left: 50%;
+      bottom: 30px;
+      font-size: 17px;
+      transform: translateX(-50%);
+    }
+
+    #snackbar.show {
+      visibility: visible;
+      animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    }
+
+    @keyframes fadein {
+      from {
+        bottom: 0;
+        opacity: 0;
+      }
+
+      to {
+        bottom: 30px;
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeout {
+      from {
+        bottom: 30px;
+        opacity: 1;
+      }
+
+      to {
+        bottom: 0;
+        opacity: 0;
+      }
+    }
+
+    .modal-content {
+      background-color: #00af96;
+      margin: auto;
+      padding: 15px 15px;
+      border-radius: 10px;
+      width: 40%;
+      position: relative;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      align-items: center;
+    }
+
+    .close {
+      color: #aaa;
+      position: absolute;
+      right: 15px;
+      top: 10px;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: black;
+    }
+
+    #errorMessage {
+      color: black;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f5f7fa;
+    }
+
+    h2 {
+      font-weight: 700;
+      margin-bottom: 30px;
+    }
+
+    .section-header {
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      padding: 12px 20px;
+      font-weight: 500;
+      margin-top: 20px;
+      border-radius: 5px 5px 0 0;
+    }
+
+    .section-body {
+      display: none;
+      background-color: white;
+      border: 1px solid #dee2e6;
+      padding: 25px;
+      border-top: none;
+      border-radius: 0 0 5px 5px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .pagination-container {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .page-item.active .page-link {
+      background-color: #007bff;
+      border-color: #007bff;
+      color: #fff;
+    }
+
+    .sortByLable {
+      margin-right: 10px;
+      font-weight: 500;
+    }
+
+    #sortBy {
+      height: auto;
+      width: auto;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      /* background-color: rgba(0, 0, 0, 0.3); Semi-transparent */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #3498db;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<!-- Snackbar (Toast) -->
+<div id="snackbar"></div>
+
+
+<body>
+  <div id="header"></div>
+
+  <!-- Error Modal -->
+  <div id="errorModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="$('#errorModal').hide()">&times;</span>
+      <!-- <h5>Message</h5> -->
+      <p id="errorMessage"></p>
+    </div>
+  </div>
+
+  <!-- Generate Slots Section -->
+  <div class="container py-4">
+    <div class="section">
+      <div class="section-header" data-target="#generateSlotsBody">+ Generate Slots</div>
+      <div class="section-body" id="generateSlotsBody">
+        <form id="generateSlotsForm">
+          <div class="form-group">
+            <label>Generation Mode:</label><br>
+            <label><input type="radio" name="mode" value="1"> Default Auto</label>
+            <label class="ml-3"><input type="radio" name="mode" value="2"> Custom One-Time</label>
+            <label class="ml-3"><input type="radio" name="mode" value="3"> Custom Continuous</label>
+            <label class="ml-3"><input type="radio" name="mode" value="4"> Manual</label>
+          </div>
+
+          <div class="form-group custom-input d-none" id="startDateField">
+            <label>Start Date:</label>
+            <input type="date" name="startDate" class="form-control">
+          </div>
+          <div class="form-group custom-input d-none" id="endDateField">
+            <label>End Date:</label>
+            <input type="date" name="endDate" class="form-control">
+          </div>
+          <div class="form-group custom-input d-none" id="daysAheadField">
+            <label>Days Ahead:</label>
+            <input type="number" name="daysAhead" class="form-control" placeholder="e.g., 5">
+          </div>
+
+          <!-- Slot Details -->
+          <div class="form-group custom-input d-none">
+            <label>Slot Timings:</label>
+            <div id="slotInputs">
+              <div class="slot-row">
+                <label>Start:</label>
+                <input type="time" class="form-control" name="startTime[]">
+                <label>End:</label>
+                <input type="time" class="form-control" name="endTime[]">
+                <label>Gap:</label>
+                <input type="number" class="form-control" name="gap[]" placeholder="Gap (mins)">
+              </div>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="addSlot">+ Add Slot</button>
+          </div>
+
+          <div class="form-check custom-input d-none">
+            <input type="checkbox" class="form-check-input" id="skipHoliday" name="skipIfHoliday">
+            <label class="form-check-label" for="skipHoliday">Skip Holidays</label>
+          </div>
+
+          <!-- Manual Slot Entry -->
+          <div class="form-group manual-input d-none">
+            <label>Manual Slot Entries:</label>
+            <div id="manualSlotInputs">
+              <div class="manual-slot-row">
+                <label>Date:</label>
+                <input type="date" class="form-control" name="manualDate[]">
+                <label>Start:</label>
+                <input type="time" class="form-control" name="manualStartTime[]">
+                <label>End:</label>
+                <input type="time" class="form-control" name="manualEndTime[]">
+              </div>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="addManualSlot">+ Add Manual
+              Slot</button>
+            <div class="mt-3">
+              <button type="submit" id="generateBtn" class="btn btn-primary btn-rounded mr-2">Generate</button>
+              <button type="button" id="savePreferenceBtn" class="btn btn-success btn-rounded">Save Preference</button>
+            </div>
+          </div>
+
+          <button type="submit" id="generateBtnShared" class="btn btn-success mt-3 btn-rounded">Save Preference</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Loader Overlay -->
+    <div id="loaderOverlay" class="loader-overlay" style="display: none;">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Bulk Delete Section -->
+    <div class="section">
+      <div class="section-header" data-target="#deleteSlotsBody">+ Bulk Delete Slots</div>
+      <div class="section-body" id="deleteSlotsBody">
+        <form id="deleteSlotsForm">
+          <div class="form-group">
+            <label>Start Date:</label>
+            <input type="date" name="startDateD" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>End Date:</label>
+            <input type="date" name="endDateD" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Optional Time Range:</label>
+            <input type="time" name="fromTime" class="form-control mb-1">
+            <input type="time" name="toTime" class="form-control">
+          </div>
+          <button type="submit" class="btn btn-danger">Delete Slots</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- View My Slots Section -->
+    <div class="section">
+      <div class="section-header" data-target="#viewSlotsBody">+ View My Slots</div>
+      <div class="section-body" id="viewSlotsBody">
+        <form id="viewSlotsForm" class="form-inline mb-3">
+          <label class="mr-2">From:</label>
+          <input type="date" name="from" class="form-control mr-3">
+          <label class="mr-2">To:</label>
+          <input type="date" name="to" class="form-control mr-3">
+          <button type="submit" class="btn btn-primary">View</button>
+
+          <label for="sortBy" class="mr-2 sortByLable" style="margin-left: 50px; font-weight: 500;">Sort By:</label>
+          <select id="sortBy" class="form-control form-control-sm">
+            <option value="">Default</option>
+            <option value="date,asc">Date Ascending</option>
+            <option value="date,desc">Date Descending</option>
+            <option value="startTime,asc">Start Time Ascending</option>
+            <option value="startTime,desc">Start Time Descending</option>
+            <option value="status,asc">Status Ascending</option>
+            <option value="status,desc">Status Descending</option>
+          </select>
+
+        </form>
+        <table class="table table-bordered table-hover">
+          <thead class="thead-light">
+            <tr>
+              <th>Id</th>
+              <th>Date</th>
+              <th>Start - End</th>
+              <th>Status</th>
+              <th>Source</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="slotTableBody">
+            <!-- Slots will be populated here -->
+          </tbody>
+        </table>
+        <!-- Pagination Controls -->
+        <nav class="pagination-container">
+          <ul class="pagination" id="pagination"></ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="./js/jquery-3.6.0.min.js"></script>
+  <script src="./js/bootstrap.bundle.min.js"></script>
+  <script src="./js/constant.js"></script>
+  <script src="./js/common.js"></script>
+  <script src="./js/availability.js"></script>
+</body>
+
+</html>

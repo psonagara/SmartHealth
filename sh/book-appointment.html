@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .card {
+            margin-top: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 1rem;
+        }
+
+        .profile-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .section-title {
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .form-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .sub-profile-section {
+            display: none;
+        }
+
+        /* Snackbar (Toast) */
+        #snackbar {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #000000;
+            color: #ffffff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 16px;
+            position: fixed;
+            z-index: 999;
+            left: 50%;
+            bottom: 30px;
+            font-size: 17px;
+            transform: translateX(-50%);
+        }
+
+        #snackbar.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
+
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* background-color: rgba(0, 0, 0, 0.3); Semi-transparent */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<!-- Snackbar (Toast) -->
+<div id="snackbar"></div>
+
+<body>
+    <div class="container">
+
+        <div class="card p-4">
+            <div class="row">
+                <div class="col-md-3 text-center">
+                    <img id="doctorImg" src="" class="profile-img" alt="Doctor Image">
+                </div>
+                <div class="col-md-9">
+                    <h5 id="doctorName" class="fw-bold">Dr. Name</h5>
+                    <p id="doctorDegree"></p>
+                    <p id="doctorSpecialization"></p>
+                    <p id="doctorDepartment"></p>
+                    <p id="doctorExperience"></p>
+                </div>
+            </div>
+
+            <hr />
+
+            <div class="form-section">
+                <h6 class="section-title">Slot Information</h6>
+                <p id="slotDate">📅 Date: --</p>
+                <p id="slotTime">⏰ Time: --</p>
+            </div>
+
+            <!-- Loader Overlay -->
+            <div id="loaderOverlay" class="loader-overlay" style="display: none;">
+                <div class="spinner"></div>
+            </div>
+
+            <div class="form-section">
+                <h6 class="section-title">Booking For</h6>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="bookingType" id="selfRadio" value="self" checked>
+                    <label class="form-check-label" for="selfRadio">Self</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="bookingType" id="othersRadio" value="others">
+                    <label class="form-check-label" for="othersRadio">Others</label>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h6 class="section-title">Patient Information</h6>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="patientName" class="form-label">Name</label>
+                        <input type="text" id="patientName" class="form-control" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="patientEmail" class="form-label">Email</label>
+                        <input type="email" id="patientEmail" class="form-control" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="patientPhone" class="form-label">Phone</label>
+                        <input type="text" id="patientPhone" class="form-control" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section sub-profile-section" id="subProfileSection">
+                <h6 class="section-title">Select Sub-Profile</h6>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="relation" class="form-label">Relation</label>
+                        <select id="relation" class="form-select"></select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="subProfile" class="form-label">Saved Sub-Profiles</label>
+                        <select id="subProfile" class="form-select">
+                            <option value="">-- Select --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="subProfileName" class="form-label">Sub-Profile Name</label>
+                        <input type="text" id="subProfileName" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="subProfilePhone" class="form-label">Sub-Profile Phone</label>
+                        <input type="text" id="subProfilePhone" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="col-12">
+                    <label for="note" class="form-label">Note</label>
+                    <textarea id="note" class="form-control" placeholder="Optional note or suggestion"></textarea>
+                </div>
+            </div>
+            <br />
+
+
+            <div class="text-center">
+                <button class="btn btn-success px-5" id="confirmBtn">Confirm Booking</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/constant.js"></script>
+    <script src="./js/jquery-3.6.0.min.js"></script>
+    <script>
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const doctorId = urlParams.get('doctorId');
+        const slotId = urlParams.get('slotId');
+
+        let patientId = 0;
+        let savedProfiles = [];
+        let relationMap = {};
+
+        $(document).ready(function () {
+            if (!doctorId || !slotId) {
+                const snackbar = $("#snackbar");
+                snackbar.text("Invalid request").addClass("show");
+                setTimeout(() => {
+                    snackbar.removeClass("show");
+                    window.location.replace("find-doctor.html");
+                }, 2000);
+                return;
+            }
+
+            if (validateUser()) {
+                $('#loaderOverlay').show();
+                const token = localStorage.getItem("aSessionId");
+                const role = localStorage.getItem("role");
+
+                $.ajax({
+                    url: `${VIEW_APPOINTMENT_DETAILS}`,
+                    method: 'GET',
+                    data: { doctorId, id: slotId },
+                    headers: { 'Authorization': "Bearer " + token },
+                    success: function (data) {
+                        const { doctor, patient, slot } = data.content;
+                        patientId = patient.id;
+
+                        $('#doctorImg').attr('src', LOAD_PICTURE_PATH + "/" + doctor.profilePicPath + "?role=doctor");
+                        $('#doctorName').text(`Dr. ${doctor.name}`);
+                        $('#doctorDegree').text(`🎓 ${doctor.degrees?.join(', ')}`);
+                        $('#doctorSpecialization').text(doctor.specializations?.length ? `🧠 ${doctor.specializations.join(', ')}` : '');
+                        $('#doctorDepartment').text(`🏥 ${doctor.departments?.join(', ')}`);
+                        $('#doctorExperience').text(`${doctor.yearOfExperience} yrs experience`);
+
+                        $('#slotDate').text(`📅 Date: ${slot.date}`);
+                        $('#slotTime').text(`⏰ Time: ${slot.startTime} - ${slot.endTime}`);
+
+                        $('#patientName').val(patient.name);
+                        $('#patientEmail').val(patient.email);
+                        $('#patientPhone').val(patient.phone);
+                        $('#loaderOverlay').hide();
+                    },
+                    error: function (xhr) {
+                        let msg = "Failed to load Appointment.";
+                        if (xhr.responseJSON.message) {
+                            msg = xhr.responseJSON.message;
+                        } else if (xhr.responseText) {
+                            msg = xhr.responseText;
+                        }
+                        $('#loaderOverlay').hide();
+                        showToastAndRedirectTo(msg, 2000, "find-doctor.html");
+                    }
+                });
+
+                $('input[name="bookingType"]').change(function () {
+                    if ($('#othersRadio').is(':checked')) {
+                        $('#loaderOverlay').show();
+                        $('#subProfileSection').slideDown();
+
+                        $.get(`${PATIENT_RELATION_PATH}`, function (relations) {
+                            $('#relation').empty();
+                            relations.forEach(r => {
+                                relationMap[r.name] = r.id;
+                                $('#relation').append(`<option value="${r.name}">${r.name}</option>`);
+                            });
+                        });
+
+                        const token = localStorage.getItem("aSessionId");
+                        $.ajax({
+                            url: `${VIEW_SUB_PROFILES_OF_PATIENT}`,
+                            method: 'GET',
+                            data: { id: patientId },
+                            headers: {
+                                'Authorization': "Bearer " + token
+                            },
+                            success: function (profiles) {
+                                savedProfiles = profiles.content;
+                                $('#subProfile').empty().append(`<option value="">-- Select --</option>`);
+                                savedProfiles.forEach(p => {
+                                    $('#subProfile').append(`<option value="${p.id}">${p.name} (${p.relation.name})</option>`);
+                                });
+                                $('#loaderOverlay').hide();
+                            },
+                            error: function (xhr, status, error) {
+                                $('#subProfile').empty().append(`<option value="">Error loading profiles</option>`);
+                                $('#loaderOverlay').hide();
+                            }
+                        });
+                    } else {
+                        $('#subProfileSection').slideUp();
+                    }
+                });
+
+                $('#subProfile').change(function () {
+                    const id = $(this).val();
+                    const profile = savedProfiles.find(p => p.id == id);
+                    $('#subProfileName').val(profile ? profile.name : '');
+                    $('#subProfilePhone').val(profile ? profile.phone : '');
+                });
+
+                $('#confirmBtn').click(function () {
+                    $('#loaderOverlay').show();
+                    const isSub = $('#othersRadio').is(':checked');
+                    const subProfileId = $('#subProfile').val();
+                    const name = $('#subProfileName').val();
+                    const phone = $('#subProfilePhone').val();
+                    const relation = $('#relation').val();
+                    const note = $('#note').val();
+
+                    if (isSub && (!name || !phone || phone.length !== 10)) {
+                        showToast("Name and 10-digit phone are required for sub-profile.");
+                        $('#loaderOverlay').hide();
+                        return;
+                    }
+
+                    const payload = {
+                        doctorId: parseInt(doctorId),
+                        slotId: parseInt(slotId),
+                        patientId: patientId,
+                        isSubProfile: isSub,
+                        note: note
+                    };
+
+                    if (isSub) {
+                        if (subProfileId) {
+                            payload.subProfile = {
+                                id: parseInt(subProfileId),
+                                name: name,
+                                phone: phone,
+                                relation: { id: relationMap[relation], name: relation }
+                            };
+                        } else {
+                            payload.subProfile = {
+                                name: name,
+                                phone: phone,
+                                relation: { id: relationMap[relation], name: relation }
+                            };
+                        }
+                    }
+                    if (!confirm("You are booking Appointment with " + $("#doctorName").text())) {
+                        $('#loaderOverlay').hide();
+                        return;
+                    };
+                    $.ajax({
+                        url: `${BOOK_APPOINTMENT}`,
+                        method: 'POST',
+                        contentType: 'application/json',
+                        headers: { 'Authorization': "Bearer " + token },
+                        data: JSON.stringify(payload),
+                        success: function () {
+                            $('#loaderOverlay').hide();
+                            showToastAndRedirectTo("Appointment booked successfully!", 2000, "find-doctor.html");
+                        },
+                        error: function (xhr) {
+                            let msg = "Failed to book appointment.";
+                            if (xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                msg = xhr.responseText;
+                            }
+                            $('#loaderOverlay').hide();
+                            showToastAndRedirectTo(msg, 2000, "find-doctor.html");
+                        }
+                    });
+                });
+            }
+        });
+
+        function validateUser() {
+            const token = localStorage.getItem("aSessionId");
+            const role = localStorage.getItem("role");
+            const expiry = localStorage.getItem("tokenExpiry");
+            const now = new Date().getTime();
+
+            if (!token || !role) {
+                showToastAndRedirectTo("Unauthorized! Please login first.", 2000, "login.html");
+            } else if (!expiry || now > expiry) {
+                localStorage.removeItem("aSessionId");
+                localStorage.removeItem("role");
+                localStorage.removeItem("tokenExpiry");
+                showToastAndRedirectTo("Session expired. Please login again.", 2000, "login.html");
+            } else {
+                return true;
+            }
+            return false;
+        }
+
+        function showToast(message) {
+            const snackbar = $("#snackbar");
+            snackbar.text(message).addClass("show");
+            setTimeout(() => {
+                snackbar.removeClass("show");
+            }, 3000);
+        }
+
+        function showToastAndRedirectTo(message, delay = 2000, redirect) {
+            const snackbar = $("#snackbar");
+            snackbar.text(message).addClass("show");
+
+            // Remove the toast after 2 seconds
+            setTimeout(() => {
+                snackbar.removeClass("show");
+                // Then redirect to login
+                window.location.replace(redirect);
+            }, delay);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,62 @@
+{"properties": [
+  {
+    "name": "smarthealth.jwt.expiration-time-in-minutes",
+    "type": "java.lang.String",
+    "description": "Value of expiration time in minutes for JWT token"
+  },
+  {
+    "name": "smarthealth.jwt.secrete-key",
+    "type": "java.lang.String",
+    "description": "Secrete key used to generate JWT token"
+  },
+  {
+    "name": "smarthealth.paths.default-profile-pic-name",
+    "type": "java.lang.String",
+    "description": "Profile Picture Name for who doesn't uploaded proile picture"
+  },
+  {
+    "name": "smarthealth.paths.image-storage-path",
+    "type": "java.lang.String",
+    "description": "Image storage path"
+  },
+  {
+    "name": "smarthealth.paths.patient-image-path",
+    "type": "java.lang.String",
+    "description": "Image storage path for patient"
+  },
+  {
+    "name": "smarthealth.paths.doctor-image-path",
+    "type": "java.lang.String",
+    "description": "Image storage path for doctor"
+  },
+  {
+    "name": "smarthealth.paths.admin-image-path",
+    "type": "java.lang.String",
+    "description": "Image storage path for admin"
+  },
+  {
+    "name": "smarthealth.slots.maximum-generation-days",
+    "type": "java.lang.String",
+    "description": "Number of maximum days for which Availability Slots genration is allowed count from today"
+  },
+  {
+    "name": "smarthealth.cors.allowed-origins",
+    "type": "java.lang.String",
+    "description": "Allowed origins that can access APIs"
+  },
+  {
+    "name": "smarthealth.cors.max-age",
+    "type": "java.lang.String",
+    "description": "A description for 'smarthealth.cors.max-age'"
+  },
+  {
+    "name": "smarthealth.cors.allowed-headers",
+    "type": "java.lang.String",
+    "description": "Allowed headers while calling APIs by allowed origins"
+  },
+  {
+    "name": "smarthealth.cors.allowed-methods",
+    "type": "java.lang.String",
+    "description": "Allowed methods like GET,POST etc. by origins"
+  }
+]}

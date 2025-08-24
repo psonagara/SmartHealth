@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no'
+        name='viewport' />
+    <title>Admin - Leave Approval Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="assets/css/ready.css">
+    <link rel="stylesheet" href="assets/css/demo.css">
+    <style>
+        body {
+            background: #eef2f7;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .panel-card {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+            margin-top: 2rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #444;
+        }
+
+        .badge-BOOKED {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .badge-APPROVED {
+            background: #28a745;
+        }
+
+        .badge-REJECTED {
+            background: #dc3545;
+        }
+
+        .pagination .page-link {
+            color: #20c997;
+        }
+
+        .pagination .active .page-link {
+            background-color: #20c997;
+            border-color: #20c997;
+            color: #fff;
+        }
+
+        .btn-custom {
+            padding: 0.5rem 1.25rem;
+            font-size: 0.9rem;
+        }
+
+        .goto-container {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .goto-input {
+            width: 150px;
+            display: inline-block;
+            border-radius: 5px;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+
+        .table th,
+        .table td {
+            vertical-align: middle;
+        }
+
+        /* Snackbar (Toast) */
+        #snackbar {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #000000;
+            color: #ffffff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 16px;
+            position: fixed;
+            z-index: 999;
+            left: 50%;
+            bottom: 30px;
+            font-size: 17px;
+            transform: translateX(-50%);
+        }
+
+        #snackbar.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<!-- Snackbar (Toast) -->
+<div id="snackbar"></div>
+
+<body>
+
+    <div class="wrapper">
+        <div class="main-header" id="main-header">
+
+        </div>
+        <div class="sidebar" id="sidebar">
+
+        </div>
+        <div class="main-panel">
+            <div class="content">
+                <div class="panel-card">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Doctor</label>
+                            <select id="doctorFilter" class="form-select">
+                                <option value="">All Doctors</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" id="statusFilter">
+                                <option value="">All</option>
+                                <option value="BOOKED">Booked</option>
+                                <option value="APPROVED">Approved</option>
+                                <option value="REJECTED">Rejected</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">From Date</label>
+                            <input type="date" class="form-control" id="fromDate">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">To Date</label>
+                            <input type="date" class="form-control" id="toDate">
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label">Sort By</label>
+                            <select class="form-select" id="sortBy">
+                                <option value="from,asc">Start Date ↑</option>
+                                <option value="from,desc">Start Date ↓</option>
+                                <option value="status,asc">Status ↑</option>
+                                <option value="status,desc">Status ↓</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-success w-100 btn-custom" id="filterBtn">Search</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-success">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Doctor ID</th>
+                                    <th>Doctor Name</th>
+                                    <th>Start</th>
+                                    <th>End</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaveTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <nav>
+                        <ul class="pagination justify-content-center" id="pagination"></ul>
+                    </nav>
+
+                    <div class="goto-container">
+                        <input type="number" id="gotoPage" class="goto-input" placeholder="Go to Page">
+                        <button class="btn btn-outline-secondary btn-custom" onclick="goToPage()">Go</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="assets/js/core/jquery.3.2.1.min.js"></script>
+    <script src="assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+    <script src="assets/js/core/popper.min.js"></script>
+    <script src="assets/js/core/bootstrap.min.js"></script>
+    <script src="assets/js/plugin/chartist/chartist.min.js"></script>
+    <script src="assets/js/plugin/chartist/plugin/chartist-plugin-tooltip.min.js"></script>
+    <script src="assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+    <script src="assets/js/plugin/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+    <script src="assets/js/plugin/jquery-mapael/jquery.mapael.min.js"></script>
+    <script src="assets/js/plugin/jquery-mapael/maps/world_countries.min.js"></script>
+    <script src="assets/js/plugin/chart-circle/circles.min.js"></script>
+    <script src="assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+    <script src="assets/js/ready.min.js"></script>
+    <script src="./assets/js/constant.js"></script>
+    <script src="./assets/js/common.js"></script>
+    <script>
+        let currentPage = 0;
+        const pageSize = 5;
+        let totalPages = 0;
+
+        function loadDoctors() {
+            if (validateUser('admin')) {
+                $.ajax({
+                    url: GET_DOCTOR_LIST,
+                    type: 'GET',
+                    headers: {
+                        "Authorization": getBearerToken()
+                    },
+                    success: function (doctors) {
+                        doctors.content.forEach(doc => {
+                            $('#doctorFilter').append(`<option value="${doc.id}">${doc.name}</option>`);
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        let msg = "Failed to load doctor's list. Please try again later."
+                        if (xhr && xhr.responseJSON && xhr.responseText) {
+                            if (xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                msg = xhr.responseText;
+                            }
+                        }
+                        showToast(msg);
+                    }
+                });
+            }
+        }
+
+        function loadLeaves(page) {
+            currentPage = page;
+            const params = {
+                doctorId: $('#doctorFilter').val(),
+                status: $('#statusFilter').val(),
+                fromDate: $('#fromDate').val(),
+                toDate: $('#toDate').val(),
+                sort: $('#sortBy').val(),
+                page: currentPage,
+                size: pageSize
+            };
+
+            if (validateUser('admin')) {
+                $.ajax({
+                    url: VIEW_DOCTOR_LEAVE,
+                    method: 'GET',
+                    headers: { 'Authorization': getBearerToken() },
+                    data: params,
+                    success: function (data) {
+                        data = data.content;
+                        totalPages = data.totalPages;
+                        renderLeaves(data.data);
+                        renderPagination(data);
+                    },
+                    error: function (xhr, status, error) {
+                        let msg = "Failed to load leave data. Please try again."
+                        if (xhr && xhr.responseJSON && xhr.responseText) {
+                            if (xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                msg = xhr.responseText;
+                            }
+                        }
+                        showToast(msg);
+                    }
+                });
+            }
+        }
+
+        function renderLeaves(leaves) {
+            $('#leaveTableBody').empty();
+            if (leaves.length === 0) {
+                $('#leaveTableBody').append('<tr><td colspan="8" class="text-center text-muted">No leave requests found</td></tr>');
+                return;
+            }
+            leaves.forEach(l => {
+                let actions = '';
+                if (l.leaveInfo.status === 'BOOKED') {
+                    actions = `
+                    <button class="btn btn-sm btn-outline-success me-1" onclick="changeStatus(${l.leaveInfo.id}, 'APPROVED')">Approve</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="changeStatus(${l.leaveInfo.id}, 'REJECTED')">Reject</button>
+                `;
+                }
+                $('#leaveTableBody').append(`
+                <tr>
+                    <td>${l.leaveInfo.id}</td>
+                    <td>${l.doctorInfo.id}</td>
+                    <td>${l.doctorInfo.name}</td>
+                    <td>${l.leaveInfo.from}</td>
+                    <td>${l.leaveInfo.to}</td>
+                    <td>${l.leaveInfo.reason}</td>
+                    <td><span class="badge badge-${l.leaveInfo.status}">${l.leaveInfo.status}</span></td>
+                    <td>${actions}</td>
+                </tr>
+            `);
+            });
+        }
+
+        function changeStatus(id, status) {
+            if (status == "APPROVED") {
+                if (!confirm(`Are you sure you want to ${status} this leave? 
+            \nNote: All Available slots will be deleted, Booked Slots will be Cancelled with associated Appointments also marked D_CANCELLED, Re_Available Slots will be Cancelled associated with this doctor for dates on which he/she will on Leave`))
+                    return;
+            }
+            if (status == "REJECTED") {
+                if (!confirm(`Are you sure you want to ${status} this leave?`)) return;
+            }
+            if (validateUser('admin')) {
+                $.ajax({
+                    url: `${CHANGE_LEAVE_STATUS}/${id}?status=${status}`,
+                    method: 'PATCH',
+                    headers: { 'Authorization': getBearerToken() },
+                    success: function (response) {
+                        showToast(response.message);
+                        loadLeaves(currentPage);
+                    },
+                    error: function (xhr, status, error) {
+                        let msg = "Failed to change leave status";
+                        if (xhr && xhr.responseJSON && xhr.responseText) {
+                            if (xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                msg = xhr.responseText;
+                            }
+                        }
+                        showToast(msg);
+                    }
+                });
+            }
+        }
+
+        function renderPagination(data) {
+            $('#pagination').empty();
+            const disablePrev = data.first ? 'disabled' : '';
+            const disableNext = data.last ? 'disabled' : '';
+
+            $('#pagination').append(`<li class="page-item ${disablePrev}"><button class="page-link" onclick="if(!${data.first}) loadLeaves(0)">&laquo;</button></li>`);
+            $('#pagination').append(`<li class="page-item ${disablePrev}"><button class="page-link" onclick="if(!${data.first}) loadLeaves(${currentPage - 1})">&lsaquo;</button></li>`);
+
+            let start = Math.max(0, currentPage - 4);
+            let end = Math.min(data.totalPages, start + 10);
+            if (end - start < 10 && start > 0) start = Math.max(0, end - 10);
+
+            for (let i = start; i < end; i++) {
+                const active = i === currentPage ? 'active' : '';
+                $('#pagination').append(`<li class="page-item ${active}"><button class="page-link" onclick="loadLeaves(${i})">${i + 1}</button></li>`);
+            }
+
+            $('#pagination').append(`<li class="page-item ${disableNext}"><button class="page-link" onclick="if(!${data.last}) loadLeaves(${currentPage + 1})">&rsaquo;</button></li>`);
+            $('#pagination').append(`<li class="page-item ${disableNext}"><button class="page-link" onclick="if(!${data.last}) loadLeaves(${data.totalPages - 1})">&raquo;</button></li>`);
+        }
+
+        function goToPage() {
+            let targetPage = parseInt($('#gotoPage').val()) - 1;
+            if (isNaN(targetPage) || targetPage < 0 || targetPage >= totalPages) {
+                alert("Invalid page number");
+                return;
+            }
+            loadLeaves(targetPage);
+        }
+
+        $('#filterBtn').click(() => loadLeaves(0));
+        $(function () { loadDoctors(); loadLeaves(0); });
+    </script>
+</body>
+
+</html>

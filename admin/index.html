@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<title>Dashboard</title>
+	<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no'
+		name='viewport' />
+	<link rel="stylesheet" href="assets/css/bootstrap.min.css">
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+	<link rel="stylesheet" href="assets/css/ready.css">
+	<link rel="stylesheet" href="assets/css/demo.css">
+	<style>
+		/* Snackbar (Toast) */
+		#snackbar {
+			visibility: hidden;
+			min-width: 250px;
+			background-color: #000000;
+			color: #ffffff;
+			text-align: center;
+			border-radius: 4px;
+			padding: 16px;
+			position: fixed;
+			z-index: 999;
+			left: 50%;
+			bottom: 30px;
+			font-size: 17px;
+			transform: translateX(-50%);
+		}
+
+		#snackbar.show {
+			visibility: visible;
+			animation: fadein 0.5s, fadeout 0.5s 2.5s;
+		}
+
+		@keyframes fadein {
+			from {
+				bottom: 0;
+				opacity: 0;
+			}
+
+			to {
+				bottom: 30px;
+				opacity: 1;
+			}
+		}
+
+		@keyframes fadeout {
+			from {
+				bottom: 30px;
+				opacity: 1;
+			}
+
+			to {
+				bottom: 0;
+				opacity: 0;
+			}
+		}
+
+		.loader-overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			/* background-color: rgba(0, 0, 0, 0.3); Semi-transparent */
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			z-index: 9999;
+		}
+
+		.spinner {
+			width: 60px;
+			height: 60px;
+			border: 8px solid #f3f3f3;
+			border-top: 8px solid #3498db;
+			border-radius: 50%;
+			animation: spin 0.8s linear infinite;
+		}
+
+		@keyframes spin {
+			to {
+				transform: rotate(360deg);
+			}
+		}
+	</style>
+</head>
+
+<!-- Snackbar (Toast) -->
+<div id="snackbar"></div>
+
+<body>
+	<div class="wrapper">
+		<div class="main-header" id="main-header">
+
+		</div>
+		<div class="sidebar" id="sidebar">
+
+		</div>
+		<div class="main-panel">
+
+			<!-- Loader Overlay -->
+			<div id="loaderOverlay" class="loader-overlay" style="display: none;">
+				<div class="spinner"></div>
+			</div>
+			<div class="content">
+				<div class="container-fluid">
+					<h4 class="page-title">Dashboard</h4>
+					<div class="row" id="adminDashboardStats">
+					</div>
+					<div class="row">
+						<!-- Existing Appointments — Trend Chart -->
+						<div class="col-md-6">
+							<div class="card">
+								<div class="card-header bg-info text-white">Appointments Trend</div>
+								<div class="card-body">
+									<canvas id="appointmentTrendChart"></canvas>
+								</div>
+							</div>
+						</div>
+
+						<!-- New Appointment Summary Chart -->
+						<div class="col-md-6">
+							<div class="card">
+								<div class="card-header bg-info text-white">Appointment Performance Trends</div>
+								<div class="card-body">
+									<canvas id="appointmentStatusChart"></canvas>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- Today's Schedule -->
+					<div class="card mb-4">
+						<div class="card-header bg-primary text-white">Today's Schedule</div>
+						<div class="card-body p-0">
+							<table class="table table-striped mb-0">
+								<thead>
+									<tr>
+										<th>Time</th>
+										<th>AppointmentId</th>
+										<th>SlotId</th>
+										<th>Doctor</th>
+										<th>Patient</th>
+										<th>Status</th>
+										<th>Booked On</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody id="todaysSchedule">
+									<tr>
+										<td colspan="8" class="text-center">Loading...</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+
+					<div class="card shadow-sm">
+						<div class="card-header bg-warning text-dark">
+							Upcoming Doctor Leaves
+						</div>
+						<div class="card-body" style="max-height: 250px; overflow-y: auto;">
+							<table class="table table-head-bg-success">
+								<thead>
+									<tr>
+										<th scope="col">Id</th>
+										<th scope="col">Doctor Name</th>
+										<th scope="col">From</th>
+										<th scope="col">To</th>
+										<th scope="col">Reason</th>
+									</tr>
+								</thead>
+								<tbody id="upcomingLeavesTable">
+
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+</body>
+<script src="assets/js/core/jquery.3.2.1.min.js"></script>
+<script src="assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+<script src="assets/js/core/popper.min.js"></script>
+<script src="assets/js/core/bootstrap.min.js"></script>
+<script src="assets/js/plugin/chartist/chartist.min.js"></script>
+<script src="assets/js/plugin/chartist/plugin/chartist-plugin-tooltip.min.js"></script>
+<script src="assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+<script src="assets/js/plugin/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script src="assets/js/plugin/jquery-mapael/jquery.mapael.min.js"></script>
+<script src="assets/js/plugin/jquery-mapael/maps/world_countries.min.js"></script>
+<script src="assets/js/plugin/chart-circle/circles.min.js"></script>
+<script src="assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="assets/js/ready.min.js"></script>
+<!-- <script src="assets/js/demo.js"></script> -->
+<script src="./assets/js/constant.js"></script>
+<script src="./assets/js/common.js"></script>
+<script>
+	$(document).ready(function () {
+		if (validateUser('admin')) {
+			loadAdminDashboardStats();
+			loadAppointmentStatusChart();
+			loadAppointmentCount();
+			loadUpcomingLeaves();
+			loadTodaysAppointments();
+		}
+	});
+	function goToLoginPage() {
+		window.location.href = "login.html";
+	}
+
+	function loadTodaysAppointments() {
+		$('#loaderOverlay').show();
+		$.ajax({
+			url: TODAYS_APPOINTMENT,
+			method: 'GET',
+			headers: { 'Authorization': getBearerToken() },
+			success: function (data) {
+				data = data.content.todaysAppointments;
+
+				// Today's Schedule
+				let scheduleHtml = "";
+				if (data.length > 0) {
+					data.forEach(appt => {
+						const viewHrefHtml = `slot-details.html?slotId=${appt.slotId}&appointmentId=${appt.id}`;
+						scheduleHtml += `<tr>
+                        <td>${appt.from} --- ${appt.to}</td>
+                        <td>${appt.id}</td>
+                        <td>${appt.slotId}</td>
+                        <td>${appt.doctorName}</td>
+                        <td>${appt.patientName}</td>
+                        <td>${appt.status}</td>
+                        <td>${appt.bookedOn}</td>
+                        <td class="table-actions">
+                            <a class="btn btn-sm btn-outline-info action-btn" href="${viewHrefHtml}">View</a>
+                        </td>
+                    </tr>`;
+					});
+				} else {
+					scheduleHtml = `<tr><td colspan="8" class="text-center">No appointments today</td></tr>`;
+				}
+				$("#todaysSchedule").html(scheduleHtml);
+				$('#loaderOverlay').hide();
+			},
+			error: function (xhr) {
+				let msg = "Failed to load today's appointments";
+				if (xhr && xhr.responseJSON && xhr.responseText) {
+					if (xhr.responseJSON.message) {
+						msg = xhr.responseJSON.message;
+					} else if (xhr.responseText) {
+						msg = xhr.responseText;
+					}
+				}
+				$('#loaderOverlay').hide();
+				showToast(msg);
+			}
+
+		});
+	}
+
+	// ========= Upcoming Doctor Leaves =========
+	function loadUpcomingLeaves() {
+		$('#loaderOverlay').show();
+		$.ajax({
+			url: UPCOMING_LEAVES, // Your API endpoint
+			method: "GET",
+			headers: { "Authorization": getBearerToken() },
+			success: function (data) {
+				// Expected API response: [{ doctorName: "Dr. Smith", from: "2025-08-12", to: "2025-08-15" }, ...]
+				data = data.content.upcomingLeaves;
+				const tbody = $('#upcomingLeavesTable');
+				tbody.empty();
+				if (data.length === 0) {
+					tbody.html(`<tr><td colspan="5">No Upcoming Leaves</td></tr>`);
+				} else {
+					let html = "";
+					data.forEach(item => {
+						html += `
+													<tr>
+														<td>${item.leaveInfo.id}</td>
+														<td>${item.doctorInfo.name}</td>
+														<td>${item.leaveInfo.from}</td>
+														<td>${item.leaveInfo.to}</td>
+														<td>${item.leaveInfo.reason}</td>
+													</tr>
+					`;
+					});
+					tbody.html(html);
+				}
+				$('#loaderOverlay').hide();
+			},
+			error: function (xhr) {
+				let msg = "Failed to load upcoming leaves";
+				if (xhr && xhr.responseJSON && xhr.responseText) {
+					if (xhr.responseJSON.message) {
+						msg = xhr.responseJSON.message;
+					} else if (xhr.responseText) {
+						msg = xhr.responseText;
+					}
+				}
+				$('#loaderOverlay').hide();
+				showToast(msg);
+			}
+		});
+	}
+
+
+	// Function to fetch trend data from backend
+	function fetchAppointmentTrend(days = 30) {
+		return $.ajax({
+			url: APPOINTMENT_COUNT,
+			method: 'GET',
+			headers: { Authorization: getBearerToken() }
+		});
+	}
+
+	// Function to render the chart
+	function renderTrendChart(data) {
+		// Extract labels & totals directly from the response
+		const labels = data.map(item => {
+			const d = new Date(item.day);
+			return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+		});
+		const totals = data.map(item => item.total);
+
+		// Update chart data
+		trendChart.data.labels = labels;
+		trendChart.data.datasets[0].data = totals;
+		trendChart.update();
+	}
+
+	// Chart.js setup
+	let trendChart;
+	function loadAppointmentCount() {
+		const ctx = document.getElementById('appointmentTrendChart').getContext('2d');
+		trendChart = new Chart(ctx, {
+			type: 'line',
+			data: {
+				labels: [],
+				datasets: [{
+					label: 'Appointments',
+					data: [],
+					fill: true,
+					backgroundColor: 'rgba(34,197,94,0.12)',
+					borderColor: '#16a34a',
+					tension: 0.3
+				}]
+			},
+			options: {
+				plugins: { legend: { display: false } },
+				scales: {
+					x: { grid: { display: false } },
+					y: { beginAtZero: true }
+				}
+			}
+		});
+
+		// Fetch and render trend data
+		fetchAppointmentTrend(30)
+			.done(response => {
+				renderTrendChart(response.content.appointmentCount);
+			})
+			.fail(xhr => {
+				console.error("Failed to fetch trend data", xhr);
+				showToast("Unable to load appointment trend data.");
+			});
+	}
+
+
+
+
+	// Load Performance Chart (like first screenshot)
+	function loadAppointmentStatusChart() {
+		$('#loaderOverlay').show();
+		$.ajax({
+			url: APPOINTMENT_TREND,
+			method: 'GET',
+			headers: { Authorization: getBearerToken() },
+			success: function (data) {
+				data = data.content;
+				const ctx = document.getElementById('appointmentStatusChart').getContext('2d');
+				new Chart(ctx, {
+					type: 'bar',
+					data: {
+						labels: data.appointmentPerformanceTrend.map(d => d.day),
+						datasets: [
+							{
+								label: 'Booked',
+								data: data.appointmentPerformanceTrend.map(w => w.booked),
+								backgroundColor: '#FFC107'
+							},
+							{
+								label: 'Approved',
+								data: data.appointmentPerformanceTrend.map(w => w.approved),
+								backgroundColor: '#0b397c'
+							},
+							{
+								label: 'Completed',
+								data: data.appointmentPerformanceTrend.map(w => w.completed),
+								backgroundColor: '#4CAF50'
+							},
+							{
+								label: 'Cancelled',
+								data: data.appointmentPerformanceTrend.map(w => w.cancelled),
+								backgroundColor: '#F44336'
+							}
+						]
+					},
+					options: {
+						scales: {
+							y: {
+								ticks: {
+									stepSize: 1,
+									callback: function (value) {
+										return Number.isInteger(value) ? value : null;
+									}
+								},
+								beginAtZero: true
+							}
+						}
+					}
+				});
+				$('#loaderOverlay').hide();
+			},
+			error: function (xhr) {
+				let msg = "Failed to load appointment status trend";
+				if (xhr && xhr.responseJSON && xhr.responseText) {
+					if (xhr.responseJSON.message) {
+						msg = xhr.responseJSON.message;
+					} else if (xhr.responseText) {
+						msg = xhr.responseText;
+					}
+				}
+				$('#loaderOverlay').hide();
+				showToast(msg);
+			}
+		});
+	}
+
+	function loadAdminDashboardStats() {
+		$('#loaderOverlay').show();
+		$.ajax({
+			url: VIEW_DASHBOARD_STATS,
+			method: 'GET',
+			headers: {
+				'Authorization': "Bearer " + localStorage.getItem('aSessionId')
+			},
+			success: function (data) {
+				$('#adminDashboardStats').empty();
+				data = data.content;
+
+				const statsMap = [
+					{ label: 'Total Slots', value: data.slots.totalSlots, icon: 'la-calendar', color: 'bg-warning', href: 'slots.html' },
+					{ label: 'Booked Slots', value: data.slots.bookedSlots, icon: 'la la-calendar-check-o', color: 'bg-warning', href: 'slots.html' },
+					{ label: 'Available Slots', value: data.slots.availableSlots, icon: 'la la-calendar-plus-o', color: 'bg-warning', href: 'slots.html' },
+					{ label: 'ReAvailable Slots', value: data.slots.reAvailableSlots, icon: 'la la-check-square', color: 'bg-warning', href: 'slots.html' },
+					{ label: 'Cancelled Slots', value: data.slots.cancelledSlots, icon: 'la la-calendar-times-o', color: 'bg-warning', href: 'slots.html' },
+
+					{ label: 'Total Appointments', value: data.appointments.totalAppointments, icon: 'la la-list', color: 'bg-success', href: 'appointments.html' },
+					{ label: 'Booked Appointments', value: data.appointments.bookedAppointments, icon: 'la la-list-alt', color: 'bg-success', href: 'appointments.html' },
+					{ label: 'Approved Appointments', value: data.appointments.approvedAppointments, icon: 'la-thumbs-up', color: 'bg-success', href: 'appointments.html' },
+					{ label: 'Rejected Appointments', value: data.appointments.rejectedAppointments, icon: 'la-thumbs-down', color: 'bg-success', href: 'appointments.html' },
+					{ label: 'Completed Appointments', value: data.appointments.completedAppointments, icon: 'la-check-circle', color: 'bg-success', href: 'appointments.html' },
+					{ label: 'Cancelled by Patient', value: data.appointments.pCancelledAppointments, icon: 'la-user-times', color: 'bg-success', href: 'appointments.html' },
+					{ label: 'Cancelled by Doctor', value: data.appointments.dCancelledAppointments, icon: 'la-user-md', color: 'bg-success', href: 'appointments.html' },
+
+					{ label: 'Total Doctors', value: data.doctors.totalDoctors, icon: 'la-user-md', color: 'bg-primary', href: 'users.html' },
+					{ label: 'Active Doctors', value: data.doctors.activeDoctors, icon: 'la la-check', color: 'bg-primary', href: 'users.html' },
+					{ label: 'Incomplete Doctor Profiles', value: data.doctors.incompleteProfileDoctors, icon: 'la la-edit', color: 'bg-primary', href: 'users.html' },
+
+					{ label: 'Total Patients', value: data.patients.totalPatients, icon: 'la-users', color: 'bg-danger', href: 'users.html' },
+					{ label: 'Active Patients', value: data.patients.activePatients, icon: 'la la-check', color: 'bg-danger', href: 'users.html' },
+					{ label: 'Incomplete Patient Profiles', value: data.patients.incompleteProfilePatients, icon: 'la la-edit', color: 'bg-danger', href: 'users.html' }
+				];
+
+				statsMap.forEach(stat => {
+					const cardHtml = `
+                    <div class="col-md-3 mb-3">
+                        <div class="card card-stats ${stat.color}">
+                            <div class="card-body">
+								<a  href="${stat.href}">
+                                <div class="row">
+                                    <div class="col-5">
+                                        <div class="icon-big text-center text-white">
+                                            <i class="la ${stat.icon}"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-7 d-flex align-items-center">
+                                        <div class="numbers text-white">
+                                            <p class="card-category mb-0" style="color:white">${stat.label}</p>
+                                            <h4 class="card-title">${stat.value}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+								</a>
+                            </div>
+                        </div>
+                    </div>`;
+					$('#adminDashboardStats').append(cardHtml);
+				});
+				$('#loaderOverlay').hide();
+			},
+			error: function (xhr) {
+				let msg = "Failed to load dashboard stats";
+				if (xhr && xhr.responseJSON && xhr.responseText) {
+					if (xhr.responseJSON.message) {
+						msg = xhr.responseJSON.message;
+					} else if (xhr.responseText) {
+						msg = xhr.responseText;
+					}
+				}
+				showToast(msg);
+				$('#loaderOverlay').hide();
+			}
+		});
+	}
+
+
+</script>
+
+</html>

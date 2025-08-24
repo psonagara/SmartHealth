@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>SmartHealth - Login / Register</title>
+	<link href="./css/login.css" rel="stylesheet">
+	<link href="./css/style.css" rel="stylesheet">
+	<link href="./css/bootstrap.min.css" rel="stylesheet">
+	<!-- Icon Font Stylesheet -->
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+	<script src="./js/bootstrap.bundle.min.js"></script>
+	<script src="./js/jquery-3.6.0.min.js"></script>
+	<script src="./js/constant.js"></script>
+	<script src="./js/common.js"></script>
+	<script src="./js/login.js"></script>
+</head>
+</div>
+<!-- Snackbar (Toast) -->
+<div id="snackbar"></div>
+
+<body>
+
+	<div id="header"></div>
+
+	<div class="login-wrap">
+		<div class="login-html">
+			<input id="tab-1" type="radio" name="tab" class="sign-in" checked><label for="tab-1" class="tab">Sign
+				In</label>
+			<input id="tab-2" type="radio" name="tab" class="sign-up"><label for="tab-2" class="tab">Sign
+				Up</label>
+			<div class="login-form">
+
+				<!-- Login Form Start -->
+				<div class="sign-in-htm">
+					<form id="loginForm">
+						<div class="group">
+							<label for="roleLogin" class="label">Role</label>
+							<select id="roleLogin" class="input">
+								<option value="patient">Patient</option>
+								<option value="doctor">Doctor</option>
+							</select>
+						</div>
+						<div class="group">
+							<label for="user" class="label">Email/Phone</label>
+							<input id="user" type="text" class="input">
+							<div class="error" id="userError"></div>
+						</div>
+						<div class="group">
+							<label for="pass" class="label">Password</label>
+							<input id="pass" type="password" class="input" data-type="password">
+							<div class="error" id="passError"></div>
+						</div>
+						<div class="group">
+							<input type="submit" class="button" id="loginFormSubmitButton" value="Sign In">
+						</div>
+						<div class="hr"></div>
+						<div class="foot-lnk">
+							<a href="#forgot">Forgot Password?</a>
+						</div>
+					</form>
+				</div>
+				
+				<!-- Loader Overlay -->
+				<div id="loaderOverlay" class="loader-overlay" style="display: none;">
+					<div class="spinner"></div>
+				</div>
+
+
+
+				<!-- Login Form End -->
+
+				<!-- Signup Form Start -->
+				<div class="sign-up-htm">
+					<form id="registerForm">
+						<div class="group">
+							<label for="roleRegister" class="label">Role</label>
+							<select id="roleRegister" class="input" name="role">
+								<option value="patient">Patient</option>
+								<option value="doctor">Doctor</option>
+							</select>
+						</div>
+						<div class="group">
+							<label for="name" class="label">Name</label>
+							<input id="name" type="text" class="input" name="name">
+							<div class="error" id="nameError"></div>
+						</div>
+						<div class="group">
+							<label for="email" class="label">Email Address</label>
+							<input id="email" type="email" class="input" name="email">
+							<div class="error" id="emailError"></div>
+						</div>
+						<div class="group">
+							<label for="phone" class="label">Phone Number</label>
+							<input id="phone" type="text" class="input" name="phone">
+							<div class="error" id="phoneError"></div>
+						</div>
+						<div class="group">
+							<label for="password" class="label">Password</label>
+							<input id="password" type="password" class="input" data-type="password">
+							<div class="error" id="passwordError"></div>
+						</div>
+						<div class="group">
+							<input type="submit" class="button" id="registerSubmitButton" value="Sign Up">
+						</div>
+					</form>
+				</div>
+				<!-- Signup Form End -->
+			</div>
+		</div>
+	</div>
+
+	<div id="footer"></div>
+</body>
+
+</html>

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no'
+        name='viewport' />
+    <title>Admin - Appointment Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="assets/css/ready.css">
+    <link rel="stylesheet" href="assets/css/demo.css">
+    <style>
+        body {
+            background: #f4f6f9;
+        }
+
+        .filter-card {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: .75rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .table-container {
+            background: #fff;
+            padding: 1rem;
+            border-radius: .75rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+        }
+
+        .table th {
+            background: #4e73df;
+            color: #fff;
+        }
+
+        .badge-BOOKED {
+            background: #17a2b8;
+        }
+
+        .badge-APPROVED {
+            background: #28a745;
+        }
+
+        .badge-D_CANCELLED,
+        .badge-P_CANCELLED {
+            background: #dc3545;
+        }
+
+        .badge-COMPLETED {
+            background: #6c757d;
+        }
+
+        .pagination .page-link {
+            color: #4e73df;
+        }
+
+        .pagination .active .page-link {
+            background-color: #4e73df;
+            border-color: #4e73df;
+            color: #fff;
+        }
+
+        .goto-page {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .goto-page input {
+            width: 70px;
+        }
+
+        /* Snackbar (Toast) */
+        #snackbar {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #000000;
+            color: #ffffff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 16px;
+            position: fixed;
+            z-index: 999;
+            left: 50%;
+            bottom: 30px;
+            font-size: 17px;
+            transform: translateX(-50%);
+        }
+
+        #snackbar.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<!-- Snackbar (Toast) -->
+<div id="snackbar"></div>
+
+<body>
+
+    <div class="wrapper">
+        <div class="main-header" id="main-header">
+
+        </div>
+        <div class="sidebar" id="sidebar">
+
+        </div>
+        <div class="main-panel">
+            <div class="content">
+                <div class="filter-card">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label">Doctor</label>
+                            <select id="doctorFilter" class="form-select">
+                                <option value="">All Doctors</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Patient</label>
+                            <select id="patientFilter" class="form-select">
+                                <option value="">All Patients</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Status</label>
+                            <select id="statusFilter" class="form-select">
+                                <option value="">All</option>
+                                <option value="BOOKED">Booked</option>
+                                <option value="APPROVED">Approved</option>
+                                <option value="D_CANCELLED">Cancelled by Doctor</option>
+                                <option value="P_CANCELLED">Cancelled by Patient</option>
+                                <option value="COMPLETED">Completed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Date</label>
+                            <input type="date" id="dateFilter" class="form-control">
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary w-100" id="searchBtn"><i
+                                    class="fas fa-search me-2"></i>Search</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>SlotId</th>
+                                <th>Doctor</th>
+                                <th>Patient</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Booked On</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="appointmentTableBody"></tbody>
+                    </table>
+                    <nav>
+                        <ul class="pagination justify-content-center" id="pagination"></ul>
+                    </nav>
+                    <div class="goto-page">
+                        <label>Go to Page:</label>
+                        <input type="number" id="gotoPageInput" class="form-control d-inline-block" min="1">
+                        <button class="btn btn-outline-primary" id="gotoPageBtn">Go</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/core/jquery.3.2.1.min.js"></script>
+    <script src="assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+    <script src="assets/js/core/popper.min.js"></script>
+    <script src="assets/js/core/bootstrap.min.js"></script>
+    <script src="assets/js/plugin/chartist/chartist.min.js"></script>
+    <script src="assets/js/plugin/chartist/plugin/chartist-plugin-tooltip.min.js"></script>
+    <script src="assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+    <script src="assets/js/plugin/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+    <script src="assets/js/plugin/jquery-mapael/jquery.mapael.min.js"></script>
+    <script src="assets/js/plugin/jquery-mapael/maps/world_countries.min.js"></script>
+    <script src="assets/js/plugin/chart-circle/circles.min.js"></script>
+    <script src="assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+    <script src="assets/js/ready.min.js"></script>
+    <script src="assets/js/demo.js"></script>
+    <script src="./assets/js/constant.js"></script>
+    <script src="./assets/js/common.js"></script>
+    <script>
+        let currentPage = 0;
+        const pageSize = 10;
+        let totalPages = 0;
+
+        function loadDoctors() {
+            if (validateUser('admin')) {
+                $.ajax({
+                    url: GET_DOCTOR_LIST,
+                    type: 'GET',
+                    headers: {
+                        "Authorization": getBearerToken()
+                    },
+                    success: function (doctors) {
+                        doctors.content.forEach(doc => {
+                            $('#doctorFilter').append(`<option value="${doc.id}">${doc.name}</option>`);
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        let msg = "Failed to load doctor's list";
+                        if (xhr && xhr.responseJSON && xhr.responseText) {
+                            if (xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                msg = xhr.responseText;
+                            }
+                        }
+                        showToast(msg);
+                    }
+                });
+            }
+        }
+
+        function loadPatients() {
+            if (validateUser('admin')) {
+                $.ajax({
+                    url: GET_PATIENT_LIST,
+                    type: 'GET',
+                    headers: {
+                        "Authorization": getBearerToken()
+                    },
+                    success: function (patients) {
+                        patients.content.forEach(p => {
+                            $('#patientFilter').append(`<option value="${p.id}">${p.name}</option>`);
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        let msg = "Failed to load patient's list";
+                        if (xhr && xhr.responseJSON && xhr.responseText) {
+                            if (xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                msg = xhr.responseText;
+                            }
+                        }
+                        showToast(msg);
+                    }
+                });
+            }
+        }
+
+        function loadAppointments(page) {
+            currentPage = page;
+            const params = {
+                doctorId: $('#doctorFilter').val(),
+                patientId: $('#patientFilter').val(),
+                status: $('#statusFilter').val(),
+                date: $('#dateFilter').val(),
+                page: currentPage,
+                size: pageSize
+            };
+
+            if (validateUser('admin')) {
+                $.ajax({
+                    url: SEARCH_APPOINTMENT,
+                    method: 'GET',
+                    headers: { 'Authorization': getBearerToken() },
+                    data: params,
+                    success: function (data) {
+                        renderTable(data.content.data);
+                        renderPagination(data.content);
+                    }
+                });
+            }
+        }
+
+        function renderTable(appointments) {
+            $('#appointmentTableBody').empty();
+            if (appointments.length === 0) {
+                $('#appointmentTableBody').append('<tr><td colspan="7" class="text-center text-muted">No Appointments Found</td></tr>');
+                return;
+            }
+            appointments.forEach(app => {
+                const viewUrl = `slot-details.html?slotId=${app.slotId}&appointmentId=${app.id}`;
+                let html = `<a class="btn btn-sm btn-outline-info action-btn" href="${viewUrl}">View</a>`;
+                if (app.status === 'BOOKED') html += `<button class="btn btn-sm btn-outline-success action-btn" onclick="changeStatus(${app.id}, 'APPROVED')">Approve</button>`;
+                if (app.status === 'APPROVED') html += `<button class="btn btn-sm btn-outline-success action-btn" onclick="changeStatus(${app.id}, 'COMPLETED')">Complete</button>`;
+                if (['BOOKED', 'APPROVED'].includes(app.status)) html += `<button class="btn btn-sm btn-outline-danger action-btn" onclick="changeStatus(${app.id}, 'D_CANCELLED')">Cancel</button>`;
+
+                $('#appointmentTableBody').append(`
+      <tr>
+        <td>${app.id}</td>
+        <td>${app.slotId}</td>
+        <td>${app.doctorName}</td>
+        <td>${app.patientName}</td>
+        <td>${app.date}</td>
+        <td>${app.from} - ${app.to}</td>
+        <td>${app.bookedOn}</td>
+        <td><span class="badge badge-${app.status}">${app.status.replace(/_/g, ' ')}</span></td>
+        <td>
+            ${html}
+        </td>
+      </tr>
+    `);
+            });
+        }
+
+        function changeStatus(id, status) {
+            const token = localStorage.getItem("aSessionId");
+            const role = localStorage.getItem("role");
+
+            if (confirm('Change to ' + status + '?')) {
+                if (validateUser('admin')) {
+                    $.ajax({
+                        url: `${CHANGE_APPOINTMENT_STATUS}/${id}?status=${status}`,
+                        type: 'PATCH',
+                        headers: {
+                            'Authorization': getBearerToken()
+                        },
+                        success: function (response) {
+                            showToast(response.message);
+                            loadAppointments(currentPage);
+                        },
+                        error: function (xhr, status, error) {
+                            let msg = "Failed to chnage status. Please try again later."
+                            if (xhr && xhr.responseJSON && xhr.responseText) {
+                                if (xhr.responseJSON.message) {
+                                    msg = xhr.responseJSON.message;
+                                } else if (xhr.responseText) {
+                                    msg = xhr.responseText;
+                                }
+                            }
+                            showToast(msg);
+                        }
+                    });
+                }
+            }
+        }
+
+        function renderPagination(pageData) {
+            $('#pagination').empty();
+            totalPages = pageData.totalPages;
+
+            const disablePrev = pageData.first ? 'disabled' : '';
+            const disableNext = pageData.last ? 'disabled' : '';
+
+            $('#pagination').append(`
+    <li class="page-item ${disablePrev}"><button class="page-link" onclick="loadAppointments(0)"><<</button></li>
+    <li class="page-item ${disablePrev}"><button class="page-link" onclick="loadAppointments(${currentPage - 1})"><</button></li>
+  `);
+
+            let start = Math.max(0, currentPage - 4);
+            let end = Math.min(totalPages, start + 10);
+            if (end - start < 10 && start > 0) start = Math.max(0, end - 10);
+
+            for (let i = start; i < end; i++) {
+                const active = i === currentPage ? 'active' : '';
+                $('#pagination').append(`<li class="page-item ${active}"><button class="page-link" onclick="loadAppointments(${i})">${i + 1}</button></li>`);
+            }
+
+            $('#pagination').append(`
+    <li class="page-item ${disableNext}"><button class="page-link" onclick="loadAppointments(${currentPage + 1})">></button></li>
+    <li class="page-item ${disableNext}"><button class="page-link" onclick="loadAppointments(${totalPages - 1})">>></button></li>
+  `);
+        }
+
+        $('#gotoPageBtn').click(() => {
+            const page = parseInt($('#gotoPageInput').val()) - 1;
+            if (page >= 0 && page < totalPages) {
+                loadAppointments(page);
+            } else {
+                alert('Invalid page number');
+            }
+        });
+
+        $('#searchBtn').click(() => loadAppointments(0));
+
+        $(function () {
+            loadDoctors();
+            loadPatients();
+            loadAppointments(0);
+        });
+    </script>
+</body>
+
+</html>

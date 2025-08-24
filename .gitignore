@@ -1,0 +1,55 @@
+### OS-specific ###
+.DS_Store
+Thumbs.db
+
+### IDEs ###
+# STS / Eclipse
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+
+# IntelliJ IDEA
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VSCode
+.vscode/
+
+### Backend (Gradle + Spring Boot) ###
+SmartHealth/build/
+SmartHealth/bin/
+SmartHealth/out/
+SmartHealth/.gradle/
+!SmartHealth/gradle/wrapper/gradle-wrapper.jar   # keep wrapper JAR
+*.log
+
+### Frontend (Node / npm / yarn) ###
+sh/node_modules/
+sh/dist/
+sh/build/
+sh/.cache/
+sh/.next/
+sh/.nuxt/
+sh/.angular/
+sh/package-lock.json
+sh/yarn.lock
+
+admin/node_modules/
+admin/dist/
+admin/build/
+admin/.cache/
+admin/.next/
+admin/.nuxt/
+admin/.angular/
+admin/package-lock.json
+admin/yarn.lock
+
+### Env files ###
+*.env
+*.env.local

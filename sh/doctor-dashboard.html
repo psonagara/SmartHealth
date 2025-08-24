@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Dashboard - SmartHealth</title>
+    <script src="./js/chart.js"></script>
+    <style>
+        .dashboard-card {
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            color: white;
+        }
+
+        .bg-appointments {
+            background-color: #4CAF50;
+        }
+
+        .bg-upcoming {
+            background-color: #2196F3;
+        }
+
+        .bg-pending {
+            background-color: #FF9800;
+        }
+
+        .bg-cancellations {
+            background-color: #F44336;
+        }
+
+        .table-actions button {
+            margin-right: 5px;
+        }
+
+        .notifications {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        /* Snackbar (Toast) */
+        #snackbar {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #000000;
+            color: #ffffff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 16px;
+            position: fixed;
+            z-index: 999;
+            left: 50%;
+            bottom: 30px;
+            font-size: 17px;
+            transform: translateX(-50%);
+        }
+
+        #snackbar.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
+
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* background-color: rgba(0, 0, 0, 0.3); Semi-transparent */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<!-- Snackbar (Toast) -->
+<div id="snackbar"></div>
+
+<body class="bg-light">
+
+    <div class="container my-4">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>👨‍⚕️ Doctor Dashboard</h2>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="dashboard-card bg-appointments">
+                    <h4 id="todayAppointments"></h4>
+                    <p>Today's Appointments</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="dashboard-card bg-upcoming">
+                    <h4 id="upcomingAppointments"></h4>
+                    <p>Upcoming Appointments</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="dashboard-card bg-pending">
+                    <h4 id="pendingApprovals"></h4>
+                    <p>Pending Approvals</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="dashboard-card bg-cancellations">
+                    <h4 id="cancellationsToday"></h4>
+                    <p>Cancellations Today</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loader Overlay -->
+        <div id="loaderOverlay" class="loader-overlay" style="display: none;">
+            <div class="spinner"></div>
+        </div>
+
+
+        <!-- Today's Schedule -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">Today's Schedule</div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>AppointmentId</th>
+                            <th>SlotId</th>
+                            <th>Patient</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="todaysSchedule">
+                        <tr>
+                            <td colspan="6" class="text-center">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Notifications & Performance -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-warning">Notifications</div>
+                    <div class="card-body notifications" id="notifications">
+                        <p class="text-muted">No notifications</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-info">Performance Trends</div>
+                    <div class="card-body">
+                        <canvas id="performanceChart" height="150"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            // Call backend API
+
+            if (validateUser('doctor')) {
+                $('#loaderOverlay').show();
+                $.ajax({
+                    url: DOCTOR_DASHBOARD,
+                    method: 'GET',
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem("aSessionId") },
+                    success: function (data) {
+                        data = data.content;
+                        // Stats
+                        $("#todayAppointments").text(data.stats.todaysAppointments);
+                        $("#upcomingAppointments").text(data.stats.upcomingAppointments);
+                        $("#pendingApprovals").text(data.stats.pendingApprovals);
+                        $("#cancellationsToday").text(data.stats.cancellationsToday);
+
+                        // Today's Schedule
+                        let scheduleHtml = "";
+                        if (data.todaysSchedule.length > 0) {
+                            data.todaysSchedule.forEach(appt => {
+                                const viewHrefHtml = `slot-details.html?slotId=${appt.slotId}&appointmentId=${appt.id}`;
+                                scheduleHtml += `<tr>
+                        <td>${appt.from} --- ${appt.to}</td>
+                        <td>${appt.id}</td>
+                        <td>${appt.slotId}</td>
+                        <td>${appt.patientName}</td>
+                        <td>${appt.status}</td>
+                        <td class="table-actions">
+                            <a class="btn btn-sm btn-outline-info action-btn" href="${viewHrefHtml}">View</a>
+                        </td>
+                    </tr>`;
+                            });
+                        } else {
+                            scheduleHtml = `<tr><td colspan="6" class="text-center">No appointments today</td></tr>`;
+                        }
+                        $("#todaysSchedule").html(scheduleHtml);
+
+                        // Notifications
+                        let notifHtml = "";
+                        if (data.notifications.length > 0) {
+                            data.notifications.forEach(n => {
+                                notifHtml += `<div><strong>${n.type}:</strong> ${n.message}<br><small class="text-muted">${n.timestamp}</small></div><hr>`;
+                            });
+                        } else {
+                            notifHtml = `<p class="text-muted">No notifications</p>`;
+                        }
+                        $("#notifications").html(notifHtml);
+
+                        // Performance Chart
+                        const ctx = document.getElementById('performanceChart').getContext('2d');
+                        new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: data.performance.dailyAppointments.map(w => w.day),
+                                datasets: [
+                                    {
+                                        label: 'Booked',
+                                        data: data.performance.dailyAppointments.map(w => w.booked),
+                                        backgroundColor: '#FFC107'
+                                    },
+                                    {
+                                        label: 'Approved',
+                                        data: data.performance.dailyAppointments.map(w => w.approved),
+                                        backgroundColor: '#0b397c'
+                                    },
+                                    {
+                                        label: 'Completed',
+                                        data: data.performance.dailyAppointments.map(w => w.completed),
+                                        backgroundColor: '#4CAF50'
+                                    },
+                                    {
+                                        label: 'Cancelled',
+                                        data: data.performance.dailyAppointments.map(w => w.cancelled),
+                                        backgroundColor: '#F44336'
+                                    }
+                                ]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        ticks: {
+                                            stepSize: 1,
+                                            callback: function (value) {
+                                                return Number.isInteger(value) ? value : null;
+                                            }
+                                        },
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+                        $('#loaderOverlay').hide();
+                    },
+                    error: function (xhr) {
+                        let msg = "Failed to load your dashboard";
+                        if (xhr && xhr.responseJSON && xhr.responseText) {
+                            if (xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                msg = xhr.responseText;
+                            }
+                        }
+                        $('#loaderOverlay').hide();
+                        showToast(msg);
+                    }
+
+                });
+            }
+        });
+        function validateUser(requiredRole) {
+            const token = localStorage.getItem("aSessionId");
+            const role = localStorage.getItem("role");
+            const expiry = localStorage.getItem("tokenExpiry");
+            const now = new Date().getTime();
+
+            if (!token || !role) {
+                showToastAndRedirectTo("Unauthorized! Please login first.", 2000, "login.html");
+            } else if (!expiry || now > expiry) {
+                localStorage.removeItem("aSessionId");
+                localStorage.removeItem("role");
+                localStorage.removeItem("tokenExpiry");
+                showToastAndRedirectTo("Session expired. Please login again.", 2000, "login.html");
+            } else if (requiredRole !== role) {
+                showToastAndRedirectTo("You don't have access to this page.", 2000, "index.html");
+            } else {
+                return true;
+            }
+            return false;
+        }
+
+        function showToast(message) {
+            const snackbar = $("#snackbar");
+            snackbar.text(message).addClass("show");
+            setTimeout(() => {
+                snackbar.removeClass("show");
+            }, 3000);
+        }
+
+        function showToastAndRedirectTo(message, delay = 2000, redirect) {
+            const snackbar = $("#snackbar");
+            snackbar.text(message).addClass("show");
+
+            setTimeout(() => {
+                snackbar.removeClass("show");
+                window.location.replace(redirect);
+            }, delay);
+        } 
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+    <link href="./css/style.css" rel="stylesheet">
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/select2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/profile.css">
+</head>
+<!-- Snackbar (Toast) -->
+<div id="snackbar"></div>
+
+<body>
+    <div id="header"></div>
+    <div class="profile-bg">
+        <div class="profile-card" id="profile-card-patient" style="display: none;">
+
+            <div class="profile-pic-container">
+                <img id="profilePreview" class="profile-photo" alt="Profile Pic" />
+                <input type="file" id="profilePic" style="display:none;" accept="image/*">
+                <label for="profilePic" class="upload-label">Change Profile Picture</label>
+            </div>
+
+            <!-- Loader Overlay -->
+            <div id="loaderOverlay" class="loader-overlay">
+                <div class="spinner"></div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="name" class="input">
+                    <span class="error" id="nameError"></span>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" class="input" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="text" id="phone" class="input" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input type="date" id="dob" class="input">
+                    <span class="error" id="dobError"></span>
+                </div>
+                <div class="form-group">
+                    <label for="gender">Gender</label>
+                    <select id="gender" class="input">
+                        <option value="">Select</option>
+                        <option value="MALE">Male</option>
+                        <option value="FEMALE">Female</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                    <span class="error" id="genderError"></span>
+                </div>
+                <div class="form-group">
+                    <label>Height (cm)</label>
+                    <input type="number" id="height" class="input">
+                    <span class="error" id="heightError"></span>
+                </div>
+                <div class="form-group">
+                    <label>Weight (kg)</label>
+                    <input type="number" id="weight" class="input">
+                    <span class="error" id="weightError"></span>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="button" id="updateProfile">Update</button>
+                <button class="button button-outline" id="changePassword">Change
+                    Password</button>
+            </div>
+        </div>
+
+
+        <!-- DOCTOR FORM-->
+        <div class="profile-card" id="profile-card-doctor" style="display: none;">
+
+            <div class="profile-pic-container">
+                <img id="doctor_profilePreview" class="profile-photo" alt="Profile Pic" />
+                <input type="file" id="doctor_profilePic" style="display:none;" accept="image/*">
+                <label for="doctor_profilePic" class="upload-label">Change Profile Picture</label>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="doctor_name">Name</label>
+                    <input type="text" id="doctor_name" class="input">
+                    <span class="error" id="doctor_nameError"></span>
+                </div>
+                <div class="form-group">
+                    <label for="doctor_email">Email</label>
+                    <input type="email" id="doctor_email" class="input" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="doctor_phone">Phone</label>
+                    <input type="text" id="doctor_phone" class="input" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="doctor_dob">Date of Birth</label>
+                    <input type="date" id="doctor_dob" class="input">
+                    <span class="error" id="doctor_dobError"></span>
+                </div>
+                <div class="form-group">
+                    <label for="doctor_gender">Gender</label>
+                    <select id="doctor_gender" class="input">
+                        <option value="">Select</option>
+                        <option value="MALE">Male</option>
+                        <option value="FEMALE">Female</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                    <span class="error" id="doctor_genderError"></span>
+                </div>
+                <div class="form-group">
+                    <label for="doctor_experience">Years of Experience</label>
+                    <input class="input" id="doctor_experience" type="number" min="0" max="100" required />
+                    <span class="error" id="doctor_yoeError"></span>
+                </div>
+                <div class="form-group">
+                    <label for="doctor_degrees">Degree(s)</label>
+                    <select class="input" id="doctor_degrees" multiple>
+                        <!-- Options loaded dynamically -->
+                    </select>
+                    <span class="error" id="doctor_degreesError"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="doctor_department">Department(s)</label>
+                    <select class="input" id="doctor_department" multiple>
+                        <!-- Options loaded dynamically -->
+                    </select>
+                    <span class="error" id="doctor_departmentError"></span>
+                </div>
+
+                <!-- Specializations -->
+                <div class="form-group">
+                    <label for="doctor_specializations">Specialization(s)</label>
+                    <select class="input" id="doctor_specializations" multiple>
+                        <!-- Options loaded dynamically -->
+                    </select>
+                    <span class="error" id="doctor_specializationsError"></span>
+                </div>
+                <div class="form-group">
+                    <label for="doctor_address">Address</label>
+                    <input id="doctor_address" type="text" class="input" />
+                    <span class="error" id="doctor_addressError"></span>
+                </div>
+                <div class="form-group">
+                    <label for="doctor_registrationNumber">Registration Number</label>
+                    <input id="doctor_registrationNumber" type="text" class="input" />
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="button" id="doctor_update_button">Update</button>
+                <button class="button button-outline" id="doctor_change_password_button">Change Password</button>
+            </div>
+        </div>
+
+        <!-- Image Modal -->
+        <div id="imageModal">
+            <span id="modalCloseBtn">×</span>
+            <img class="modal-content" id="modalImage" alt="Preview">
+        </div>
+    </div>
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/jquery-3.6.0.min.js"></script>
+    <script src="./js/select2.min.js"></script>
+    <script src="./js/constant.js"></script>
+    <script src="./js/common.js"></script>
+    <script src="./js/profile.js"></script>
+</body>
+
+</html>

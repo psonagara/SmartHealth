@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no'
+        name='viewport' />
+    <title>Admin - Doctor Slots</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="assets/css/ready.css">
+    <link rel="stylesheet" href="assets/css/demo.css">
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .filter-card {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: .75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .table-container {
+            background: #fff;
+            padding: 1rem;
+            border-radius: .75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .table th {
+            background: #20c997;
+            color: #fff;
+        }
+
+        .status-Available {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .status-Booked {
+            color: #fd7e14;
+            font-weight: 600;
+        }
+
+        .status-Cancelled {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .status-Reavailable {
+            color: #0d6efd;
+            font-weight: 600;
+        }
+
+        .pagination .page-link {
+            color: #20c997;
+            border-radius: 50px;
+        }
+
+        .pagination .active .page-link {
+            background-color: #20c997;
+            border-color: #20c997;
+            color: #fff;
+        }
+
+        .goto-page {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .goto-page input {
+            width: 80px;
+            text-align: center;
+        }
+
+        .btn-action {
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .btn-action i {
+            margin-right: 5px;
+        }
+
+        .btn-info {
+            background: #0dcaf0;
+            border: none;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            border: none;
+        }
+
+        .btn-info:hover,
+        .btn-warning:hover {
+            opacity: 0.9;
+        }
+
+        /* Snackbar (Toast) */
+        #snackbar {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #000000;
+            color: #ffffff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 16px;
+            position: fixed;
+            z-index: 999;
+            left: 50%;
+            bottom: 30px;
+            font-size: 17px;
+            transform: translateX(-50%);
+        }
+
+        #snackbar.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<!-- Snackbar (Toast) -->
+<div id="snackbar"></div>
+
+<body>
+    <div class="wrapper">
+        <div class="main-header" id="main-header">
+
+        </div>
+        <div class="sidebar" id="sidebar">
+
+        </div>
+        <div class="main-panel">
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="filter-card">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label">Doctor</label>
+                                <select id="doctorFilter" class="form-select">
+                                    <option value="">All Doctors</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Date</label>
+                                <input type="date" id="dateFilter" class="form-control">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Status</label>
+                                <select id="statusFilter" class="form-select">
+                                    <option value="">All</option>
+                                    <option value="AVAILABLE">Available</option>
+                                    <option value="BOOKED">Booked</option>
+                                    <option value="CANCELLED">Cancelled</option>
+                                    <option value="REAVAILABLE">Re-Available</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-success w-100" id="searchBtn"><i
+                                        class="fas fa-search me-2"></i>Search</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Slot Id</th>
+                                    <th>Doctor Id</th>
+                                    <th>Date</th>
+                                    <th>Start</th>
+                                    <th>End</th>
+                                    <th>Status</th>
+                                    <th>Doctor Name</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="slotTableBody"></tbody>
+                        </table>
+                        <nav>
+                            <ul class="pagination justify-content-center flex-wrap" id="pagination"></ul>
+                        </nav>
+                        <div class="goto-page justify-content-center d-flex">
+                            <label class="me-2">Go to page:</label>
+                            <input type="number" id="gotoPage" class="form-control form-control-sm" min="1">
+                            <button class="btn btn-outline-success btn-sm" onclick="goToPage()">Go</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/core/jquery.3.2.1.min.js"></script>
+    <script src="assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+    <script src="assets/js/core/popper.min.js"></script>
+    <script src="assets/js/core/bootstrap.min.js"></script>
+    <script src="assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+    <script src="assets/js/plugin/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+    <script src="assets/js/plugin/jquery-mapael/jquery.mapael.min.js"></script>
+    <script src="assets/js/plugin/chart-circle/circles.min.js"></script>
+    <script src="assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+    <script src="assets/js/ready.min.js"></script>
+    <!-- <script src="assets/js/demo.js"></script> -->
+    <script src="./assets/js/common.js"></script>
+    <script src="./assets/js/constant.js"></script>
+    <script>
+        let currentPage = 0;
+        const pageSize = 10;
+        let totalPages = 0;
+
+        function loadDoctors() {
+            if (validateUser('admin')) {
+                $.ajax({
+                    url: GET_DOCTOR_LIST,
+                    type: 'GET',
+                    headers: {
+                        "Authorization": getBearerToken()
+                    },
+                    success: function (doctors) {
+                        doctors = doctors.content;
+                        doctors.forEach(doc => {
+                            $('#doctorFilter').append(`<option value="${doc.id}">${doc.name}</option>`);
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        let msg = "Failed to load doctor's list.";
+                        if (xhr && xhr.responseJSON && xhr.responseText) {
+                            if (xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                msg = xhr.responseText;
+                            }
+                        }
+                        showToast(msg);
+                    }
+                });
+            }
+        }
+
+        function loadSlots(page) {
+            currentPage = page;
+            const params = {
+                doctorId: $('#doctorFilter').val(),
+                date: $('#dateFilter').val(),
+                status: $('#statusFilter').val(),
+                page: currentPage,
+                size: pageSize
+            };
+            if (validateUser('admin')) {
+                $.ajax({
+                    url: SEARCH_SLOTS,
+                    method: 'GET',
+                    headers: { 'Authorization': getBearerToken() },
+                    data: params,
+                    success: function (data) {
+                        data = data.content;
+                        totalPages = data.totalPages;
+                        renderTable(data);
+                        renderPagination(data);
+                    },
+                    error: function (xhr, status, error) {
+                        let msg = "Failed to load data. Please try again."
+                        if (xhr && xhr.responseJSON && xhr.responseText) {
+                            if (xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                msg = xhr.responseText;
+                            }
+                        }
+                        showToast(msg);
+                    }
+                });
+            }
+        }
+
+        function renderTable(response) {
+            $('#slotTableBody').empty();
+            let slots = response.data;
+            if (slots.length === 0) {
+                $('#slotTableBody').append('<tr><td colspan="9" class="text-center text-muted">No Slots Found</td></tr>');
+                return;
+            }
+            slots.forEach(slot => {
+                let deleteButtonHtml = "";
+                if (slot.slot.status === 'AVAILABLE') {
+                    deleteButtonHtml = `<button class="btn btn-danger btn-sm ml-2 btn-delete-slot" data-slot-id="${slot.slot.id}">Delete</button>`;
+                }
+                const viewUrl = `slot-details.html?slotId=${slot.slot.id}`;
+                $('#slotTableBody').append(`
+                                <tr>
+                                    <td>${slot.slot.id}</td>
+                                    <td>${slot.doctor.id}</td>
+                                    <td>${slot.slot.date}</td>
+                                    <td>${slot.slot.startTime}</td>
+                                    <td>${slot.slot.endTime}</td>
+                                    <td class="status-${slot.slot.status}">${slot.slot.status}</td>
+                                    <td>${slot.doctor.name}</td>
+                                    <td>
+                                    <a class="btn btn-sm btn-info" href="${viewUrl}">View</a>
+                                    ${deleteButtonHtml}
+                                    </td>
+                                </tr>
+                        `);
+            });
+        }
+
+        function renderPagination(pageData) {
+            $('#pagination').empty();
+            const maxPages = 10;
+            let startPage = 0;
+            //   const startPage = Math.floor(currentPage / maxPages) * maxPages;
+            if (totalPages > maxPages) {
+                if (totalPages - currentPage < maxPages) {
+                    startPage = totalPages - maxPages;
+                } else {
+                    startPage = currentPage;
+                }
+            }
+
+            const endPage = Math.min(startPage + maxPages, totalPages);
+
+            $('#pagination').append(`
+    <li class="page-item ${currentPage === 0 ? 'disabled' : ''}"><button class="page-link" onclick="loadSlots(0)"><<</button></li>
+    <li class="page-item ${currentPage === 0 ? 'disabled' : ''}"><button class="page-link" onclick="loadSlots(${currentPage - 1})"><</button></li>
+  `);
+
+            for (let i = startPage; i < endPage; i++) {
+                const active = i === currentPage ? 'active' : '';
+                $('#pagination').append(`<li class="page-item ${active}"><button class="page-link" onclick="loadSlots(${i})">${i + 1}</button></li>`);
+            }
+
+            $('#pagination').append(`
+    <li class="page-item ${currentPage === totalPages - 1 ? 'disabled' : ''}"><button class="page-link" onclick="loadSlots(${currentPage + 1})">></button></li>
+    <li class="page-item ${currentPage === totalPages - 1 ? 'disabled' : ''}"><button class="page-link" onclick="loadSlots(${totalPages - 1})">>></button></li>
+  `);
+        }
+
+        function goToPage() {
+            const page = parseInt($('#gotoPage').val()) - 1;
+            if (page >= 0 && page < totalPages) {
+                loadSlots(page);
+            }
+        }
+
+        $('#slotTableBody').on('click', '.btn-delete-slot', function () {
+            const $row = $(this).closest('tr');
+            const slotId = $(this).data('slot-id');
+            const token = localStorage.getItem("aSessionId");
+            const role = localStorage.getItem("role");
+
+
+            if (validateUser('admin')) {
+                $.ajax({
+                    url: `${DELETE_AVAILABILITY_SLOTS}/${slotId}`,
+                    method: 'DELETE',
+                    headers: { Authorization: getBearerToken() },
+                    success: function (response) {
+                        $row.remove();
+                        showToast(response.message);
+                    },
+                    error: function (xhr) {
+                        let msg = "Failed to delete Slot. Please try again."
+                        if (xhr && xhr.responseJSON && xhr.responseText) {
+                            if (xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                msg = xhr.responseText;
+                            }
+                        }
+                        showToast(msg);
+                    }
+                });
+            }
+        });
+
+
+        $('#searchBtn').click(() => loadSlots(0));
+
+        $(function () {
+            loadDoctors();
+            loadSlots(0);
+        });
+    </script>
+</body>
+
+</html>

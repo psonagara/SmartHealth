@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no'
+        name='viewport' />
+    <title>Admin - User Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="assets/css/ready.css">
+    <link rel="stylesheet" href="assets/css/demo.css">
+    <style>
+        body {
+            background-color: #eef2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .management-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .filter-row .col-md-3,
+        .filter-row .col-md-2 {
+            margin-bottom: 1rem;
+        }
+
+        .table-responsive {
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .table thead th {
+            color: #ffffff;
+        }
+
+        /* Snackbar (Toast) */
+        #snackbar {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #000000;
+            color: #ffffff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 16px;
+            position: fixed;
+            z-index: 999;
+            left: 50%;
+            bottom: 30px;
+            font-size: 17px;
+            transform: translateX(-50%);
+        }
+
+        #snackbar.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
+
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* background-color: rgba(0, 0, 0, 0.3); Semi-transparent */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<!-- Snackbar (Toast) -->
+<div id="snackbar"></div>
+
+<body>
+    <div class="wrapper">
+        <div class="main-header" id="main-header">
+
+        </div>
+        <div class="sidebar" id="sidebar">
+
+            <!-- Loader Overlay -->
+            <div id="loaderOverlay" class="loader-overlay" style="display: none;">
+                <div class="spinner"></div>
+            </div>
+
+
+        </div>
+        <div class="main-panel">
+            <div class="content">
+                <div class="container-fluid">
+
+
+                    <div class="dropdown justify-content-center mb-4">
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="usersDropDown"
+                            data-toggle="dropdown">
+                            Doctors
+                        </button>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" id="userTabs">
+                            <a class="dropdown-item active" id="doctorTab">Doctor</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" id="patientTab">Patients</a>
+                        </ul>
+                    </div>
+                    <!-- Doctor Section -->
+                    <div id="doctorSection">
+                        <!-- Filter Card -->
+                        <div id="doctorFilter" class="management-card">
+                            <h5 class="mb-3" id="filterDoctorText">+ Filter Doctors</h5>
+                            <div id="filterDoctorFields">
+
+                                <div class="row filter-row">
+                                    <div class="col-md-2">
+                                        <label class="filter-label">ID</label>
+                                        <input type="number" id="docId" class="form-control" placeholder="ID">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="filter-label">Name</label>
+                                        <input type="text" id="docName" class="form-control" placeholder="Name">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="filter-label">Email</label>
+                                        <input type="email" id="docEmail" class="form-control" placeholder="Email">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="filter-label">Phone</label>
+                                        <input type="text" id="docPhone" class="form-control" placeholder="Phone">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="filter-label">Gender</label>
+                                        <select id="docGender" class="form-control">
+                                            <option value="">All</option>
+                                            <option>Male</option>
+                                            <option>Female</option>
+                                            <option>Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row filter-row">
+                                    <div class="col-md-2">
+                                        <label class="filter-label">Degree</label>
+                                        <select id="docDegree" class="form-control">
+                                            <option value="">All</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="filter-label">Department</label>
+                                        <select id="docDepartment" class="form-control">
+                                            <option value="">All</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="filter-label">Specialization</label>
+                                        <select id="docSpecialization" class="form-control">
+                                            <option value="">All</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="filter-label">Experience (yrs)</label>
+                                        <input type="number" id="docExp" class="form-control" placeholder="0">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="filter-label">Profile Complete</label>
+                                        <select id="docProfileComplete" class="form-control">
+                                            <option value="">All</option>
+                                            <option value="true">Yes</option>
+                                            <option value="false">No</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="filter-label">Active</label>
+                                        <select id="docIsActive" class="form-control">
+                                            <option value="">All</option>
+                                            <option value="true">Yes</option>
+                                            <option value="false">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <button class="btn btn-primary" onclick="loadDoctors(0)">Filter</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Data Table -->
+                        <div id="doctorTableContainer" class="table-responsive">
+                            <table class="table table-striped align-middle">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Active</th>
+                                        <th>Profile Complete</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="doctorTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Patient Section -->
+                    <div id="patientSection" class="d-none">
+                        <div id="patientFilter" class="management-card">
+                            <h5 class="mb-3" id="patientFilterText">+ Filter Patients</h5>
+                            <div id="patientFilterFields">
+                                
+                                <div class="row filter-row">
+                                    <div class="col-md-2">
+                                        <label class="filter-label">ID</label>
+                                        <input type="number" id="patId" class="form-control" placeholder="ID">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="filter-label">Name</label>
+                                        <input type="text" id="patName" class="form-control" placeholder="Name">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="filter-label">Email</label>
+                                        <input type="email" id="patEmail" class="form-control" placeholder="Email">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="filter-label">Phone</label>
+                                        <input type="text" id="patPhone" class="form-control" placeholder="Phone">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="filter-label">Gender</label>
+                                        <select id="patGender" class="form-control">
+                                            <option value="">All</option>
+                                            <option>Male</option>
+                                            <option>Female</option>
+                                            <option>Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row filter-row">
+                                    <div class="col-md-2">
+                                        <label class="filter-label">Profile Complete</label>
+                                        <select id="patProfileComplete" class="form-control">
+                                            <option value="">All</option>
+                                            <option value="true">Yes</option>
+                                            <option value="false">No</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="filter-label">Active</label>
+                                        <select id="patIsActive" class="form-control">
+                                            <option value="">All</option>
+                                            <option value="true">Yes</option>
+                                            <option value="false">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <button class="btn btn-primary" onclick="loadPatients(0)">Filter</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="patientTableContainer" class="table-responsive">
+                            <table class="table table-striped align-middle">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Active</th>
+                                        <th>Profile Complete</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="patientTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div>
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item" id="firstPage"><a class="page-link" href="#">«</a></li>
+                                <li class="page-item" id="prevPage"><a class="page-link" href="#">‹</a></li>
+                                <!-- page numbers will be injected here -->
+                                <li class="page-item" id="nextPage"><a class="page-link" href="#">›</a></li>
+                                <li class="page-item" id="lastPage"><a class="page-link" href="#">»</a></li>
+                            </ul>
+                        </nav>
+                        <div class="input-group justify-content-center mb-4">
+                            <span class="input-group-text">Go to Page</span>
+                            <input type="number" id="gotoPage" class="form-control" style="max-width: 100px;">
+                            <button class="btn btn-info" id="gotoBtn">Go</button>
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/core/jquery.3.2.1.min.js"></script>
+    <script src="assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+    <script src="assets/js/core/popper.min.js"></script>
+    <script src="assets/js/core/bootstrap.min.js"></script>
+    <script src="assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+    <script src="assets/js/plugin/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+    <script src="assets/js/plugin/jquery-mapael/jquery.mapael.min.js"></script>
+    <script src="assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+    <script src="assets/js/ready.min.js"></script>
+    <!-- <script src="assets/js/demo.js"></script> -->
+    <script src="./assets/js/constant.js"></script>
+    <script src="./assets/js/common.js"></script>
+    <script>
+
+        let docPage = 0, patPage = 0;
+
+        $(document).ready(function () {
+
+            $("#filterDoctorFields").slideUp();
+            $("#filterDoctorText").click(function () {
+                $("#filterDoctorFields").slideToggle();
+            })
+            $("#patientFilterFields").slideUp();
+            $("#patientFilterText").click(function () {
+                $("#patientFilterFields").slideToggle();
+            })
+            loadDropdowns();
+            loadDoctors(0);
+
+            $('#doctorTab').click(function () {
+                $('#doctorSection').removeClass('d-none');
+                $('#patientSection').addClass('d-none');
+                $('#doctorTab').addClass('active');
+                $('#patientTab').removeClass('active');
+                $("#usersDropDown").text("Doctors");
+                loadDoctors(0);
+            });
+
+            $('#patientTab').click(function () {
+                $('#patientSection').removeClass('d-none');
+                $('#doctorSection').addClass('d-none');
+                $('#patientTab').addClass('active');
+                $('#doctorTab').removeClass('active');
+                $("#usersDropDown").text("Patients");
+                loadPatients(0);
+            });
+
+            $('#prevDoc').click(() => { if (docPage > 0) loadDoctors(--docPage); });
+            $('#nextDoc').click(() => { loadDoctors(++docPage); });
+            $('#prevPat').click(() => { if (patPage > 0) loadPatients(--patPage); });
+            $('#nextPat').click(() => { loadPatients(++patPage); });
+        });
+
+        function loadDropdowns() {
+            const token = localStorage.getItem('aSessionId');
+            $.each(['degree', 'department', 'specialization'], function (i, type) {
+                $.get(DOCTOR_DATA_API_PATH + "/" + type, function (data) {
+                    $.each(data, function (j, item) {
+                        $('#doc' + capitalize(type)).append('<option value="' + item.id + '">' + item.name + '</option>');
+                    });
+                });
+            });
+        }
+
+        function loadDoctors(page) {
+            docPage = page;
+            const filter = {
+                id: $('#docId').val() || null,
+                name: $('#docName').val() ? $('#docName').val() : null,
+                email: $('#docEmail').val() ? $('#docEmail').val() : null,
+                phone: $('#docPhone').val() ? $('#docPhone').val() : null,
+                gender: $('#docGender').val() ? $('#docGender').val() : null,
+                degree: $('#docDegree').val() ? { id: $('#docDegree').val() } : null,
+                department: $('#docDepartment').val() ? { id: $('#docDepartment').val() } : null,
+                specialization: $('#docSpecialization').val() ? { id: $('#docSpecialization').val() } : null,
+                yearOfExperience: $('#docExp').val() || null,
+                registrationNumber: $('#docReg').val(),
+                profileComplete: $('#docProfileComplete').val(),
+                isActive: $('#docIsActive').val()
+            };
+
+            if (validateUser('admin')) {
+$('#loaderOverlay').show();
+                $.ajax({
+                    url: SEARCH_DOCTOR + '?page=' + page,
+                    headers: { 'Authorization': getBearerToken() },
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(filter),
+                    success: function (response) {
+
+                        let html = '';
+                        response = response.content;
+                        data = response.data;
+                        docTotalPages = response.totalPages;
+                        $.each(data, function (i, doc) {
+                            const viewUrl = `view-doctor-info.html?id=${doc.id}`;
+                            let activeText = doc.isActive ? 'Yes' : 'No';
+                            let profileCompleteText = doc.profileComplete ? 'Yes' : 'No';
+                            let statusBtn = doc.isActive ?
+                                '<button class="btn btn-sm btn-danger action-btn" onclick="toggleStatus(\'doctor\',' + doc.id + ')">Inactivate</button>' :
+                                '<button class="btn btn-sm btn-success action-btn" onclick="toggleStatus(\'doctor\',' + doc.id + ')">Activate</button>';
+                            html += '<tr>' +
+                                '<td>' + doc.id + '</td>' +
+                                '<td>' + doc.name + '</td>' +
+                                '<td>' + doc.email + '</td>' +
+                                '<td>' + doc.phone + '</td>' +
+                                '<td>' + activeText + '</td>' +
+                                '<td>' + profileCompleteText + '</td>' +
+                                '<td>' +
+                                '<a class="btn btn-sm btn-info action-btn" href="' + viewUrl + '">View</a>' +
+                                '<button class="btn btn-sm btn-primary action-btn" onclick="editUser(\'doctor\',' + doc.id + ')">Edit</button>' +
+                                statusBtn +
+                                '</td></tr>';
+                        });
+                        $('#doctorTableBody').html(html);
+                        renderPagination('doctor');
+                        $('#loaderOverlay').hide();
+                    },
+                    error: function (xhr) {
+
+                        let msg = "Failed to load doctors";
+                        if (xhr && xhr.responseJSON && xhr.responseText) {
+                            if (xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                msg = xhr.responseText;
+                            }
+                        }
+                        showToast(msg);
+                        $('#loaderOverlay').hide();
+
+                    }
+                });
+            }
+        }
+
+        function loadPatients(page) {
+            patPage = page;
+            const filter = {
+                id: $('#patId').val() || null,
+                name: $('#patName').val(),
+                email: $('#patEmail').val(),
+                phone: $('#patPhone').val(),
+                gender: $('#patGender').val() ? $('#patGender').val() : null,
+                profileComplete: $('#patProfileComplete').val(),
+                isActive: $('#patIsActive').val()
+            };
+            if (validateUser('admin')) {
+                $('#loaderOverlay').show();
+                $.ajax({
+                    url: SEARCH_PATIENT + '?page=' + page,
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('aSessionId') },
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(filter),
+                    success: function (response) {
+                        let html = '';
+                        response = response.content;
+                        data = response.data;
+                        patTotalPages = response.totalPages;
+                        $.each(data, function (i, pat) {
+                            const viewUrl = `view-patient-info.html?id=${pat.id}`;
+                            let activeText = pat.isActive ? 'Yes' : 'No';
+                            let profileCompleteText = pat.profileComplete ? 'Yes' : 'No';
+                            let statusBtn = pat.isActive ?
+                                '<button class="btn btn-sm btn-danger action-btn" onclick="toggleStatus(\'patient\',' + pat.id + ')">Inactivate</button>' :
+                                '<button class="btn btn-sm btn-success action-btn" onclick="toggleStatus(\'patient\',' + pat.id + ')">Activate</button>';
+                            html += '<tr>' +
+                                '<td>' + pat.id + '</td>' +
+                                '<td>' + pat.name + '</td>' +
+                                '<td>' + pat.email + '</td>' +
+                                '<td>' + pat.phone + '</td>' +
+                                '<td>' + activeText + '</td>' +
+                                '<td>' + profileCompleteText + '</td>' +
+                                '<td>' +
+                                '<a class="btn btn-sm btn-info action-btn" href="' + viewUrl + '">View</a>' +
+                                '<button class="btn btn-sm btn-primary action-btn" onclick="editUser(\'patient\',' + pat.id + ')">Edit</button>' +
+                                statusBtn +
+                                '</td></tr>';
+                        });
+                        $('#patientTableBody').html(html);
+                        renderPagination('patient');
+                        $('#loaderOverlay').hide();
+                    },
+                    error: function (xhr) {
+
+                        let msg = "Failed to load patients";
+                        if (xhr && xhr.responseJSON && xhr.responseText) {
+                            if (xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                msg = xhr.responseText;
+                            }
+                        }
+                        showToast(msg);
+                        $('#loaderOverlay').hide();
+
+                    }
+                });
+            }
+        }
+
+        function toggleStatus(role, id) {
+            $('#loaderOverlay').show();
+            $.ajax({
+                url: TOGGLE_USER_ACTIVATION_STATUS + "/" + role + '?id=' + id,
+                method: 'PATCH',
+                headers: { 'Authorization': getBearerToken() },
+                success: function (response) {
+                    showToast(response.message);
+                    if (role === 'doctor') loadDoctors(docPage); else loadPatients(patPage);
+                    $('#loaderOverlay').hide();
+                },
+                error: function (xhr) {
+
+                    let msg = "Failed to change activation status";
+                    if (xhr && xhr.responseJSON && xhr.responseText) {
+                        if (xhr.responseJSON.message) {
+                            msg = xhr.responseJSON.message;
+                        } else if (xhr.responseText) {
+                            msg = xhr.responseText;
+                        }
+                    }
+                    showToast(msg);
+                    $('#loaderOverlay').hide();
+
+                }
+            });
+        }
+
+        function editUser(role, id) {
+            alert('Redirect to ' + role + ' edit page with id ' + id);
+        }
+
+        function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+
+        let docTotalPages = 0, patTotalPages = 0;
+
+        function renderPagination(section) {
+            const ul = section === 'doctor' ? $('.pagination').first() : $('.pagination').last();
+            const current = section === 'doctor' ? docPage : patPage;
+            const total = section === 'doctor' ? docTotalPages : patTotalPages;
+            // Clear existing page numbers
+            ul.find('.page-number').remove();
+            // Render page numbers
+            for (let i = 0; i < total; i++) {
+                const li = $(`<li class="page-item page-number" data-page="${i}"><a class="page-link" href="#">${i + 1}</a></li>`);
+                if (i === current) li.addClass('active');
+                $(ul).find('#nextPage').before(li);
+            }
+            // Enable/disable nav buttons
+            ul.find('#firstPage, #prevPage').toggleClass('disabled', current === 0);
+            ul.find('#nextPage, #lastPage').toggleClass('disabled', current === total - 1);
+        }
+
+        $(document).on('click', '.page-number', function (e) {
+            e.preventDefault();
+            const p = parseInt($(this).data('page'));
+            if ($('#doctorSection').is(':visible')) loadDoctors(p);
+            else loadPatients(p);
+        });
+        $(document).on('click', '#firstPage', function (e) {
+            e.preventDefault();
+            if ($('#doctorSection').is(':visible')) {
+                if (!$(this).hasClass('disabled'))
+                    loadDoctors(0);
+            } else if ($('#patientSection').is(':visible')) {
+                if (!$(this).hasClass('disabled'))
+                    loadPatients(0);
+            }
+        });
+        $(document).on('click', '#lastPage', function (e) {
+            e.preventDefault();
+            if ($('#doctorSection').is(':visible')) {
+                if (!$(this).hasClass('disabled'))
+                    loadDoctors(docTotalPages - 1);
+            } else if ($('#patientSection').is(':visible')) {
+                if (!$(this).hasClass('disabled'))
+                    loadPatients(patTotalPages - 1);
+            }
+        });
+        $(document).on('click', '#prevPage', function (e) {
+            e.preventDefault();
+            if ($('#doctorSection').is(':visible')) {
+                if (docPage > 0)
+                    loadDoctors(docPage - 1);
+            } else if ($('#patientSection').is(':visible')) {
+                if (patPage > 0)
+                    loadPatients(patPage - 1);
+            }
+        });
+        $(document).on('click', '#nextPage', function (e) {
+            e.preventDefault();
+            if ($('#doctorSection').is(':visible')) {
+                if (docPage < docTotalPages - 1)
+                    loadDoctors(docPage + 1);
+            } else if ($('#patientSection').is(':visible')) {
+                if (patPage < patTotalPages - 1)
+                    loadPatients(patPage + 1);
+            }
+        });
+        $('#gotoBtn').click(function () {
+            const p = parseInt($('#gotoPage').val()) - 1;
+            if ($('#doctorSection').is(':visible')) {
+                if (!isNaN(p) && p >= 0 && p < docTotalPages)
+                    loadDoctors(p);
+            } else if ($('#patientSection').is(':visible')) {
+                if (!isNaN(p) && p >= 0 && p < patTotalPages)
+                    loadPatients(p);
+            }
+        });
+    </script>
+</body>
+
+</html>

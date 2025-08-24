@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find a Doctor</title>
+    <link href="./css/style.css" rel="stylesheet">
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f6f9;
+        }
+
+        .doctor-card {
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .doctor-card:hover {
+            transform: scale(1.02);
+        }
+
+        .doctor-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #dee2e6;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+        }
+
+        .pagination {
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        #gotoPageContainer {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .modal-lg {
+            max-width: 900px;
+        }
+
+        .modal-body .row-cols-md-3>* {
+            flex: 0 0 auto;
+            width: 100%;
+        }
+
+        .modal-body .slot-date {
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .modal-body .slot-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-body .slot-time {
+            flex: 1;
+            background-color: #198754;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            margin-right: 1rem;
+            text-align: center;
+        }
+
+        .modal-body .book-btn {
+            flex-shrink: 0;
+        }
+
+        /* Snackbar (Toast) */
+        #snackbar {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #000000;
+            color: #ffffff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 16px;
+            position: fixed;
+            z-index: 999;
+            left: 50%;
+            bottom: 30px;
+            font-size: 17px;
+            transform: translateX(-50%);
+        }
+
+        #snackbar.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
+
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* background-color: rgba(0, 0, 0, 0.3); Semi-transparent */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<!-- Snackbar (Toast) -->
+<div id="snackbar"></div>
+
+<body>
+    <div id="header"></div>
+    <div class="container mt-4">
+
+        <div class="card p-4 mb-4">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="searchName">Search by Name</label>
+                    <input type="text" id="searchName" class="form-control" placeholder="Enter doctor name">
+                </div>
+                <div class="col-md-3">
+                    <label for="department">Department</label>
+                    <select id="department" class="form-select">
+                        <option value="">-- Select --</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="specialization">Specialization</label>
+                    <select id="specialization" class="form-select">
+                        <option value="">-- Select --</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="degree">Degree</label>
+                    <select id="degree" class="form-select">
+                        <option value="">-- Select --</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="appointmentDate">Select Date</label>
+                    <input type="date" id="appointmentDate" class="form-control">
+                </div>
+                <div class="col-md-3 align-self-end">
+                    <button class="btn btn-primary w-100" id="searchBtn">Search</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loader Overlay -->
+        <div id="loaderOverlay" class="loader-overlay" style="display: none;">
+            <div class="spinner"></div>
+        </div>
+
+        <div id="doctorList"></div>
+
+        <nav>
+            <ul class="pagination" id="pagination"></ul>
+        </nav>
+
+        <div id="gotoPageContainer">
+            <label class="me-2">Go to Page</label>
+            <input type="number" min="1" id="gotoPageInput" style="width: 80px;" class="form-control d-inline-block">
+            <button class="btn btn-info ms-2" id="gotoPageBtn">Go</button>
+        </div>
+    </div>
+
+    <!-- Modal for Slots -->
+    <div class="modal fade" id="slotModal" tabindex="-1" aria-labelledby="slotModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="slotModalLabel">Available Slots</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="slotContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/jquery-3.6.0.min.js"></script>
+    <script src="./js/constant.js"></script>
+    <script src="./js/common.js"></script>
+    <script>
+        let currentPage = 0;
+        const pageSize = 5;
+        let totalPageCount = 0;
+
+        function loadFilters() {
+            $.get(`${DOCTOR_DEPARTMENT_PATH}`, function (departments) {
+                departments.forEach(d => $('#department').append(`<option value="${d.id}">${d.name}</option>`));
+            });
+            $.get(`${DOCTOR_SPECIALIZATION_PATH}`, function (specializations) {
+                specializations.forEach(s => $('#specialization').append(`<option value="${s.id}">${s.name}</option>`));
+            });
+            $.get(`${DOCTOR_DEGREE_PATH}`, function (degrees) {
+                degrees.forEach(s => $('#degree').append(`<option value="${s.id}">${s.name}</option>`));
+            });
+        }
+
+        function renderPagination(totalPages) {
+            totalPageCount = totalPages;
+            let html = '';
+            html += `<li class="page-item ${currentPage === 0 ? 'disabled' : ''}"><a class="page-link" href="#" data-page="0">&laquo;</a></li>`;
+            html += `<li class="page-item ${currentPage === 0 ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${currentPage - 1}">&lsaquo;</a></li>`;
+            for (let i = 0; i < totalPages; i++) {
+                html += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" data-page="${i}">${i + 1}</a></li>`;
+            }
+            html += `<li class="page-item ${currentPage === totalPages - 1 ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${currentPage + 1}">&rsaquo;</a></li>`;
+            html += `<li class="page-item ${currentPage === totalPages - 1 ? 'disabled' : ''}"><a class="page-link" href="#" data-page="${totalPages - 1}">&raquo;</a></li>`;
+            $('#pagination').html(html);
+            $('#gotoPageContainer').toggle(totalPages > 1);
+        }
+
+        function searchDoctors() {
+            if (validateUser()) {
+                $('#loaderOverlay').show();
+                const token = localStorage.getItem("aSessionId");
+                const role = localStorage.getItem("role");
+
+                const name = $('#searchName').val();
+                const departmentId = $('#department').val();
+                const specializationId = $('#specialization').val();
+                const degreeId = $('#degree').val();
+                const date = $('#appointmentDate').val();
+
+                const request = {
+                    name: name || null,
+                    date: date || null,
+                    department: departmentId ? { id: departmentId } : null,
+                    specialization: specializationId ? { id: specializationId } : null,
+                    degree: degreeId ? { id: degreeId } : null
+                };
+
+                $.ajax({
+                    url: `${SEARCH_DOCTOR}?page=${currentPage}&size=${pageSize}`,
+                    type: 'POST',
+                    contentType: 'application/json',
+                    headers: {
+                        'Authorization': "Bearer " + token
+                    },
+                    data: JSON.stringify(request),
+                    success: function (response) {
+                        $('#doctorList').empty();
+                        if (!response || !response.content || response.content.data.length === 0) {
+                            $('#doctorList').append('<p class="text-center">No doctors found.</p>');
+                            $('#pagination').empty();
+                            $('#gotoPageContainer').hide();
+                             $('#loaderOverlay').hide();
+                            return;
+                        }
+
+                        response.content.data.forEach(doctor => {
+                            const profilePic = doctor.profilePicPath;
+                            const degrees = doctor.degrees?.join(', ') || '';
+                            const specialization = doctor.specializations?.join(', ') || '';
+                            const department = doctor.departments?.join(', ') || '';
+
+                            const profilePicUrl = LOAD_PICTURE_PATH + "/" + profilePic + "?role=doctor";
+                            let specializationHtml = specialization ? `<p>🧠 ${specialization}</p>` : '';
+
+                            const card = `
+                                        <div class="doctor-card row">
+                                        <div class="col-md-2 text-center">
+                                            <img src="${profilePicUrl}" alt="Dr. Pic" class="doctor-img">
+                                        </div>
+                                        <div class="col-md-7">
+                                            <h5 class="fw-bold">Dr. ${doctor.name}</h5>
+                                            <p>🎓 ${degrees}</p>
+                                            ${specializationHtml}
+                                            <p>🏥 ${department}</p>
+                                            <p>${doctor.yearOfExperience} yrs experience</p>
+                                        </div>
+                                        <div class="col-md-3 text-end">
+                                            <button class="btn btn-outline-primary view-slots" data-id="${doctor.id}" data-date="${date}">View Slots</button>
+                                        </div>
+                                        </div>`;
+                            $('#doctorList').append(card);
+                        });
+
+                        renderPagination(response.content.totalPages);
+                        $('#loaderOverlay').hide();
+                    },
+                    error: function (xhr, status, error) {
+                        $('#loaderOverlay').hide();
+                        showToast(xhr.responseJSON.message);
+                    }
+                });
+            }
+        }
+
+        $(document).on('click', '.page-link', function (e) {
+            e.preventDefault();
+            const page = parseInt($(this).data('page'));
+            if (!isNaN(page) && page >= 0 && page < totalPageCount) {
+                currentPage = page;
+                searchDoctors();
+            }
+        });
+
+        $('#gotoPageBtn').click(function () {
+            const pageInput = parseInt($('#gotoPageInput').val());
+            if (!isNaN(pageInput) && pageInput >= 1 && pageInput <= totalPageCount) {
+                currentPage = pageInput - 1;
+                searchDoctors();
+            }
+        });
+
+        $(document).on('click', '.view-slots', function () {
+            if (validateUser()) {
+                $('#loaderOverlay').show();
+                const token = localStorage.getItem("aSessionId");
+                const role = localStorage.getItem("role");
+                const doctorId = $(this).data('id');
+                const date = $(this).data('date');
+                $('#slotContent').empty();
+                $.ajax({
+                    url: `${VIEW_SLOTS}?doctorId=${doctorId}&date=${date}`,
+                    method: 'GET',
+                    headers: {
+                        'Authorization': "Bearer " + token
+                    },
+                    success: function (response) {
+                        let slotsByDate = response.content;
+                        if (!slotsByDate || Object.keys(slotsByDate).length === 0) {
+                            $('#slotContent').html('<p class="text-center">No slots available.</p>');
+                        } else {
+                            Object.keys(slotsByDate).forEach(date => {
+                                const slots = slotsByDate[date];
+                                $('#slotContent').append(`<div class="slot-date">${date}</div>`);
+                                slots.forEach(slot => {
+                                    const bookUrl = `book-appointment.html?doctorId=${doctorId}&slotId=${slot.id}`;
+                                    $('#slotContent').append(`
+                                    <div class="slot-row">
+                                        <div class="slot-time">${slot.startTime} - ${slot.endTime}</div>
+                                        <a class="btn btn-primary book-btn" href="${bookUrl}">Book</a>
+                                    </div>
+                                `);
+                                });
+                                $('#slotContent').append(`<hr/><br/>`);
+                            });
+                        }
+                        const modal = new bootstrap.Modal(document.getElementById('slotModal'));
+                        modal.show();
+                        $('#loaderOverlay').hide();
+                    },
+                    error: function (xhr, status, error) {
+                        $('#loaderOverlay').hide();
+                        showToast(xhr.responseJSON.message);
+                    }
+                });
+            }
+        });
+
+        $(document).ready(function () {
+            if (validateUser()) {
+                loadFilters();
+                $('#searchBtn').click(function () {
+                    currentPage = 0;
+                    searchDoctors();
+                });
+            }
+        });
+
+        function showToastAndRedirectToLogin(message, delay = 2000) {
+            const snackbar = $("#snackbar");
+            snackbar.text(message).addClass("show");
+
+            // Remove the toast after 2 seconds
+            setTimeout(() => {
+                snackbar.removeClass("show");
+                // Then redirect to login
+                window.location.replace("login.html");
+            }, delay);
+        }
+
+        function validateUser() {
+            const token = localStorage.getItem("aSessionId");
+            const role = localStorage.getItem("role");
+            const expiry = localStorage.getItem("tokenExpiry");
+            const now = new Date().getTime();
+
+            if (!token || !role) {
+                showToastAndRedirectToLogin("Unauthorized! Please login first.");
+            } else if (!expiry || now > expiry) {
+                localStorage.removeItem("aSessionId");
+                localStorage.removeItem("role");
+                localStorage.removeItem("tokenExpiry");
+                showToastAndRedirectToLogin("Session expired. Please login again.");
+            } else {
+                return true;
+            }
+            return false;
+        }
+
+        function showToast(message) {
+            const snackbar = $("#snackbar");
+            snackbar.text(message).addClass("show");
+            setTimeout(() => {
+                snackbar.removeClass("show");
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>

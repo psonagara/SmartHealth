@@ -1,0 +1,86 @@
+package com.ps.constants;
+
+/**
+ * Interface containing constants used in validation message during request validation.
+ */
+public interface IValidationConstants {
+
+	String NAME_REQUIRED = "Name is required";
+	String EMAIL_REQUIRED = "Email is required";
+	String INVALID_EMAIL = "Invalid Email";
+	String PHONE_REQUIRED = "Phone number is required";
+	String INVALID_PHONE = "Invalid Phone number";
+	String PASSWORD_REQUIRED = "Password is required";
+	String INVALID_PASSWORD = "Password must be at least 5 characters";
+	String DOB_REQUIRED = "Date of birth is required";
+	String GENDER_REQUIRED = "Gender is required";
+	String HEIGHT_REQUIRED = "Height is required";
+	String WEIGHT_REQUIRED = "Weight is required";
+	String EMAIL_OR_PHONE_REQUIRED = "Email or Phone is required";
+	String DEGREE_REQUIRED = "At least one degree must be specified";
+	String DEGREE_NAME_REQUIRED = "Degree name is required";
+	String DEGREE_ID_REQUIRED = "Degree id is required";
+	String DEPARTMENT_REQUIRED = "At least one department must be specified";
+	String DEPARTMENT_NAME_REQUIRED = "Department name is required";
+	String DEPARTMENT_ID_REQUIRED = "Department id is required";
+	String SPECIALIZATION_NAME_REQUIRED = "Specialization name is required";
+	String SPECIALIZATION_ID_REQUIRED = "Specialization id is required";
+	String YEAR_OF_EXPERIENCE_REQUIRED = "Year of experience required";
+	String ADDRESS_REQUIRED = "Address is required";
+	String EMPTY_IMAGE_FILE = "File is empty";
+	String ALLOWED_IMAGE_MESSAGE = "Only JPG, PNG, and JPEG images are allowed";
+	String INVALID_IMAGE_EXTENSION = "Invalid file extension";
+	String IMAGE_SIZE_EXCEED = "File size exceeds 2MB";
+	String PROFILE_PIC_UPLOAD_FAIL = "Failed to upload profile picture";
+	String NEGATIVE_EXPERIENCE_NOT_ALLOWED = "Experience cannot be negative";
+	String VALID_EXPERIENCE = "Experience must be less than or equal to 100";
+	String START_DATE_MADATORY = "Start date is mandatory";
+	String ONE_TIME_END_DATE_MADATORY = "End date is mandatory for one time availability generation";
+	String START_DATE_CONSTRAINTS = "Start Date should be today or in future not in past";
+	String END_DATE_CONSTRAINTS = "End Date should be today or in future not in past";
+	String FUTURE_15DAYS_CONSTRAINTS = "Availability generation for more than 15 day in future is not allowed";
+	String AGR_NOT_NULL = "Availability Generation request should not be null";
+	String AGR_MODE_CONSTRAINT= "Mode is required";
+	String START_TIME_CONSTRAINT = "Start Time is required";
+	String END_TIME_CONSTRAINT = "End Time should be in future of Start Time for your slot";
+	String END_TIME_CONSTRAINT_2 = "End Time is required";
+	String GAP_IN_MINUTES_CONSTRAINT = "Provided Gap in Minutes is greater than gap between End Time and Start Time";
+	String DATE_CONSTRAINT_MANUALLY = "Date is mandatory for manual Slot creation";
+	String DATE_CONSTRAINT_2_MANUALLY = "Date should be today or in future for manual Slot creation";
+	String LAST_GENERATED_CONSTRAINT = "No such field required lastGeneratedOn";
+	String SLOT_INPUT_CONSTRAINTS = "At least one Slot Input should be provided";
+	String END_DATE_CONSTRAINTS_2 = "End Date should be provided to delete slots";
+	String FUTURE_15DAYS_CONSTRAINTS_2 = "Availability deletion for more than 15 day in future is not allowed";
+	String FROM_DATE_CONSTRAINTS = "From date is mandatory to view slots";
+	String TO_DATE_CONSTRAINTS = "To Date should be same or in future of From Date";
+	String END_TIME_CONSTRAINTS = "End time should be in future of startTime";
+	String ADR_NOT_NULL = "Availability Deletion request should not be null";
+	String END_DATE_CONSTRAINTS_3 = "End Date should be same or in future of Start Date";
+	String SEARCH_DATE_CONSTRAINT = "Date should be today or future date";
+	String AR_NOT_NULL = "Appointment request should not be null";
+	String DOCTOR_ID_CONSTRAINT = "Id of Doctor should be provided to book appointment";
+	String PATINET_ID_CONSTRAINT = "Id of Patient should be provided to book appointment";
+	String SLOT_ID_CONSTRAINT = "Id of Slot should be provided to book appointment";
+	String AR_NOTE_CONSTRAINT = "Length of note should not exceed 500 character";
+	String SUB_PROFILE_ID_CONSTRAINT = "Please provide a valid id of sub-profile";
+	String SUB_PROFILE_CONSTRAINT = "Please provide sub-profile details(relative's detail)";
+	String SUB_PROFILE_NAME_CONSTRAINT = "Please provide name of relative";
+	String SUB_PROFILE_PHONE_CONSTRAINT = "Please provide valid contact number of relative";
+	String SUB_PROFILE_RELATION_CONSTRAINT = "Realtion details are not correct";
+	String LR_NOT_NULL = "Leave request should not be null";
+	String LEAVE_FROM_DATE_CONSTRAINT = "Provide date to book leave";
+	String LEAVE_TO_DATE_CONSTRAINT = "Provide valid date range to book leave";
+	String LEAVE_REASON_CONSTRAINT = "Provide reason to book leave";
+	String LEAVE_FROM_TO_DATE_CONSTRAINT = "Holiday found on selected Date(s)";
+	String LEAVE_FROM_DATE_CONSTRAINT_2 = "Leave booking should not be for past date";
+	String LEAVE_REASON_CONSTRAINT_2 = "Reason length should not exceed 500 characters";
+	String HOLIDAY_DATE_CONSTRAINT = "Holiday Date is Mandatory";
+	String HOLIDAY_REASON_CONSTRAINT = "Holiday Reason is Mandatory";
+	String NAME_CONSTRAINT = "Name must not exceed 100 characters";
+	String EMAIL_CONSTRAINT = "Email must not exceed 255 characters";
+	String PHONE_CONSTRAINT = "Phone must not exceed 10 characters";
+	String GENDER_CONSTRAINT = "Gender must not exceed 7 characters";
+	String ADS_YOE_CONSTRAINT = "Years of experience must not be negative";
+	String REG_NUMBER_CONSTRAINT = "Registration number must not exceed 50 characters";
+	String ADDRESS_CONSTRAINT = "Address should not exceed limit of 500 characters";
+}

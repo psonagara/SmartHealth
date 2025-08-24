@@ -1,0 +1,27 @@
+# Auto-detect text files and ensure LF line endings in repo
+* text=auto eol=lf
+
+# Handle common file types
+*.java text diff=java
+*.js   text diff=javascript
+*.ts   text diff=typescript
+*.css  text
+*.html text
+*.json text
+*.yml  text
+*.yaml text
+*.md   text
+*.gradle text
+*.properties text
+*.xml  text
+
+# Binary files - don't diff
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.jar binary
+*.zip binary
+*.exe binary

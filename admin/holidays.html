@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no'
+        name='viewport' />
+    <title>Admin - Holiday Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+    <link rel="stylesheet" href="assets/css/ready.css">
+    <link rel="stylesheet" href="assets/css/demo.css">
+    <style>
+        body {
+            background: #f4f6f9;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .panel-card {
+            background: #fff;
+            padding: 2rem;
+            border-radius: .75rem;
+            box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.05);
+            margin-top: 2rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .btn-custom {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .table th,
+        .table td {
+            vertical-align: middle;
+        }
+
+        .pagination .page-link {
+            color: #4e73df;
+        }
+
+        .pagination .active .page-link {
+            background-color: #4e73df;
+            border-color: #4e73df;
+            color: #fff;
+        }
+
+        .goto-container {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .goto-input {
+            width: 150px;
+            display: inline-block;
+            border-radius: 5px;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+
+        /* Snackbar (Toast) */
+        #snackbar {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #000000;
+            color: #ffffff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 16px;
+            position: fixed;
+            z-index: 999;
+            left: 50%;
+            bottom: 30px;
+            font-size: 17px;
+            transform: translateX(-50%);
+        }
+
+        #snackbar.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<!-- Snackbar (Toast) -->
+<div id="snackbar"></div>
+
+<body>
+    <div class="wrapper">
+        <div class="main-header" id="main-header">
+
+        </div>
+        <div class="sidebar" id="sidebar">
+
+        </div>
+        <div class="main-panel">
+            <div class="content">
+                <div class="panel-card">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label">Holiday Date</label>
+                            <input type="date" class="form-control" id="holidayDate">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Reason</label>
+                            <input type="text" class="form-control" id="holidayReason" placeholder="Enter reason">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button class="btn btn-success btn-custom w-100" id="addHolidayBtn">Add Holiday</button>
+                        </div>
+                    </div>
+
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Holiday Date</th>
+                                <th>Reason</th>
+                                <th>Created At</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="holidayTableBody"></tbody>
+                    </table>
+
+                    <nav>
+                        <ul class="pagination justify-content-center" id="pagination"></ul>
+                    </nav>
+
+                    <div class="goto-container">
+                        <input type="number" id="gotoPage" class="goto-input" placeholder="Go to Page">
+                        <button class="btn btn-secondary btn-custom" onclick="goToPage()">Go</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/core/jquery.3.2.1.min.js"></script>
+    <script src="assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+    <script src="assets/js/core/popper.min.js"></script>
+    <script src="assets/js/core/bootstrap.min.js"></script>
+    <script src="assets/js/plugin/chartist/chartist.min.js"></script>
+    <script src="assets/js/plugin/chartist/plugin/chartist-plugin-tooltip.min.js"></script>
+    <script src="assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+    <script src="assets/js/plugin/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+    <script src="assets/js/plugin/jquery-mapael/jquery.mapael.min.js"></script>
+    <script src="assets/js/plugin/jquery-mapael/maps/world_countries.min.js"></script>
+    <script src="assets/js/plugin/chart-circle/circles.min.js"></script>
+    <script src="assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+    <script src="assets/js/ready.min.js"></script>
+    <script src="./assets/js/constant.js"></script>
+    <script src="./assets/js/common.js"></script>
+    <script>
+        let currentPage = 0;
+        const pageSize = 5;
+        let totalPages = 0;
+
+        function loadHolidays(page) {
+            currentPage = page;
+            if (validateUser('admin')) {
+                $.ajax({
+                    url: VIEW_HOLIDAY,
+                    method: 'GET',
+                    data: { page: page, size: pageSize },
+                    success: function (data) {
+                        totalPages = data.totalPages;
+                        renderHolidays(data.data);
+                        renderPagination(data);
+                    },
+                    error: function (xhr, status, error) {
+                        let msg = "Failed to load hoidays. Please try again later."
+                        if (xhr && xhr.responseJSON && xhr.responseText) {
+                            if (xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                msg = xhr.responseText;
+                            }
+                        }
+                        showToast(msg);
+                    }
+                });
+            }
+        }
+
+        function renderHolidays(holidays) {
+            $('#holidayTableBody').empty();
+            if (holidays.length === 0) {
+                $('#holidayTableBody').append('<tr><td colspan="5" class="text-center text-muted">No holidays found</td></tr>');
+                return;
+            }
+            holidays.forEach(h => {
+                $('#holidayTableBody').append(`
+                <tr>
+                    <td>${h.id}</td>
+                    <td>${h.holidayDate}</td>
+                    <td>${h.reason}</td>
+                    <td>${h.creationTime.replace('T', ' ')}</td>
+                    <td><button class="btn btn-danger btn-sm" onclick="deleteHoliday(${h.id})">Delete</button></td>
+                </tr>
+            `);
+            });
+        }
+
+        function renderPagination(data) {
+            $('#pagination').empty();
+            const disablePrev = data.first ? 'disabled' : '';
+            const disableNext = data.last ? 'disabled' : '';
+
+            $('#pagination').append(`<li class="page-item ${disablePrev}"><button class="page-link" onclick="if(!${data.first}) loadHolidays(0)">&laquo;</button></li>`);
+            $('#pagination').append(`<li class="page-item ${disablePrev}"><button class="page-link" onclick="if(!${data.first}) loadHolidays(${currentPage - 1})">&lsaquo;</button></li>`);
+
+            let start = Math.max(0, currentPage - 4);
+            let end = Math.min(data.totalPages, start + 10);
+            if (end - start < 10 && start > 0) start = Math.max(0, end - 10);
+
+            for (let i = start; i < end; i++) {
+                const active = i === currentPage ? 'active' : '';
+                $('#pagination').append(`<li class="page-item ${active}"><button class="page-link" onclick="loadHolidays(${i})">${i + 1}</button></li>`);
+            }
+
+            $('#pagination').append(`<li class="page-item ${disableNext}"><button class="page-link" onclick="if(!${data.last}) loadHolidays(${currentPage + 1})">&rsaquo;</button></li>`);
+            $('#pagination').append(`<li class="page-item ${disableNext}"><button class="page-link" onclick="if(!${data.last}) loadHolidays(${data.totalPages - 1})">&raquo;</button></li>`);
+        }
+
+        function goToPage() {
+            let targetPage = parseInt($('#gotoPage').val()) - 1;
+            if (isNaN(targetPage) || targetPage < 0 || targetPage >= totalPages) {
+                alert("Invalid page number");
+                return;
+            }
+            loadHolidays(targetPage);
+        }
+
+        function deleteHoliday(id) {
+            if (confirm("Are you sure you want to delete this holiday?")) {
+                if (validateUser('admin')) {
+                    $.ajax({
+                        url: `${DELETE_HOLIDAY}/${id}`,
+                        method: 'DELETE',
+                        headers: { 'Authorization': getBearerToken() },
+                        success: function (response) {
+                            showToast(response.message);
+                            loadHolidays(currentPage);
+                        },
+                        error: function (xhr, status, error) {
+                            let msg = "Failed to delete holiday. Please try again later."
+                            if (xhr && xhr.responseJSON && xhr.responseText) {
+                                if (xhr.responseJSON.message) {
+                                    msg = xhr.responseJSON.message;
+                                } else if (xhr.responseText) {
+                                    msg = xhr.responseText;
+                                }
+                            }
+                            showToast(msg);
+                        }
+                    });
+                }
+            }
+        }
+
+        $('#addHolidayBtn').click(() => {
+            const date = $('#holidayDate').val();
+            const reason = $('#holidayReason').val();
+            if (!date || !reason) {
+                alert("Please fill both date and reason.");
+                return;
+            }
+            if (validateUser('admin')) {
+                $.ajax({
+                    url: ADD_HOLIDAY,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    headers: { 'Authorization': getBearerToken() },
+                    data: JSON.stringify({ holidayDate: date, reason: reason }),
+                    success: function (response) {
+                        showToast(response.message);
+                        $('#holidayDate').val('');
+                        $('#holidayReason').val('');
+                        loadHolidays(0);
+                    },
+                    error: function (xhr, status, error) {
+                        let msg = "Failed to add holiday. Please try again later."
+                        if (xhr && xhr.responseJSON && xhr.responseText) {
+                            if (xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                msg = xhr.responseText;
+                            }
+                        }
+                        showToast(msg);
+                    }
+                });
+            }
+        });
+
+        $(function () { loadHolidays(0); });
+    </script>
+
+</body>
+
+</html>

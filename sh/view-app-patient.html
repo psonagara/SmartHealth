@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Appointment Management</title>
+    <link href="./css/style.css" rel="stylesheet">
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(120deg, #f4f6f9, #eef1f5);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .filter-card {
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            background: #fff;
+            margin-bottom: 40px;
+        }
+
+        .btn-search,
+        .btn-go {
+            background: #00b8d9;
+            color: #fff;
+            font-weight: 600;
+            border-radius: 10px;
+        }
+
+        .btn-search:hover,
+        .btn-go:hover {
+            background: #0099b0;
+        }
+
+        .table th {
+            background-color: #00b8d9;
+            color: #fff;
+            text-align: center;
+        }
+
+        .table td {
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .pagination .page-link {
+            color: #00b8d9;
+            border-radius: 8px;
+        }
+
+        .pagination .active .page-link {
+            background-color: #00b8d9;
+            border-color: #00b8d9;
+            color: #fff;
+        }
+
+        .action-btn {
+            margin: 2px;
+            min-width: 70px;
+        }
+
+        .goto-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-header {
+            background: #0062cc;
+            color: #fff;
+            border-bottom: none;
+        }
+
+        .modal-title {
+            font-weight: 600;
+        }
+
+        .card-header {
+            background: #0056b3;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            padding: 0.35em 0.75em;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .status-BOOKED {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .status-APPROVED {
+            background: #28a745;
+            color: #fff;
+        }
+
+        .status-D_CANCELLED {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        .status-P_CANCELLED {
+            background: #fd7e14;
+            color: #fff;
+        }
+
+        .status-COMPLETED {
+            background: #17a2b8;
+            color: #fff;
+        }
+
+        .info-box {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .info-box h6 {
+            font-size: 0.95rem;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        /* Snackbar (Toast) */
+        #snackbar {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #000000;
+            color: #ffffff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 16px;
+            position: fixed;
+            z-index: 999;
+            left: 50%;
+            bottom: 30px;
+            font-size: 17px;
+            transform: translateX(-50%);
+        }
+
+        #snackbar.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein {
+            from {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeout {
+            from {
+                bottom: 30px;
+                opacity: 1;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 0;
+            }
+        }
+
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* background-color: rgba(0, 0, 0, 0.3); Semi-transparent */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<!-- Snackbar (Toast) -->
+<div id="snackbar"></div>
+
+<body>
+    <div id="header"></div>
+    <div class="container mt-5">
+        <div class="filter-card">
+            <h4 class="mb-4 text-primary">Filter Appointments</h4>
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="doctorName" class="form-label">Doctor Name</label>
+                    <input type="text" class="form-control" id="doctorName" placeholder="Enter doctor name">
+                </div>
+                <div class="col-md-3">
+                    <label for="appointmentDate" class="form-label">Select Date</label>
+                    <input type="date" class="form-control" id="appointmentDate">
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status">
+                        <option value="">-- All --</option>
+                        <option value="BOOKED">Booked</option>
+                        <option value="APPROVED">Approved</option>
+                        <option value="D_CANCELLED">Doctor Cancelled</option>
+                        <option value="P_CANCELLED">Patient Cancelled</option>
+                        <option value="COMPLETED">Completed</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="sortBy" class="form-label">Sort By</label>
+                    <select class="form-select" id="sortBy">
+                        <option value="createdAt,desc">Recently Booked</option>
+                        <option value="updatedAt,desc">Recently Updated</option>
+                        <option value="availability.date,desc">Date Descending</option>
+                        <option value="availability.date,desc">Date Descending</option>
+                        <option value="availability.doctor.name,desc">Doctor Descending</option>
+                        <option value="availability.doctor.name,asc">Doctor Ascending</option>
+                        <option value="status,asc">Status Ascending</option>
+                        <option value="status,desc">Status Descending</option>
+                        <option value="createdAt,asc">Past Booked</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-12 d-grid">
+                    <button class="btn btn-search" onclick="applyFilter(0)">Search</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <!-- Loader Overlay -->
+    <div id="loaderOverlay" class="loader-overlay" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="appointmentModal" tabindex="-1" aria-labelledby="appointmentModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="appointmentModalLabel">Appointment Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="appointmentModalBody">
+                    <!-- Dynamic Content -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/constant.js"></script>
+    <script src="./js/jquery-3.6.0.min.js"></script>
+    <script src="./js/common.js"></script>
+    <script>
+        let currentlyStayingPageNumber;
+        $("#sortBy").change(function () {
+            applyFilter(0);
+        });
+
+        function viewDetails(id, date, from, to) {
+
+            if (validateUser('patient')) {
+                $('#loaderOverlay').show();
+                const token = localStorage.getItem("aSessionId");
+                const role = localStorage.getItem("role");
+
+                $.ajax({
+                    url: `${VIEW_APPOINTMENT_DETAILS}/${id}`,
+                    method: 'GET',
+                    headers: { 'Authorization': "Bearer " + token },
+                    success: function (response) {
+                        data = response.content;
+                        const d = data.doctorInfo;
+                        const a = data.appointmentInfo;
+                        const imgUrl = LOAD_PICTURE_PATH + "/" + d.profilePicPath + "?role=doctor";
+                        const statusClass = 'status-' + a.status;
+
+                        const content = `
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <img src="${imgUrl}" class="rounded-circle mb-3" style="width:140px;height:140px;object-fit:cover;">
+                                <h5 class="fw-bold">${d.name}</h5>
+                                <p class="text-muted mb-1">${d.degrees.join(', ')}</p>
+                                <p class="text-muted mb-1">${d.specializations.join(', ') || 'General'}</p>
+                                <p class="text-muted mb-0">${d.departments.join(', ')}</p>
+                                <p class="text-muted">${d.yearOfExperience} yrs exp</p>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="info-box">
+                                <h6>Timing</h6>
+                                <div class="info-grid">
+                                    <div><strong>Date:</strong><br>${date}</div>
+                                    <div><strong>Start:</strong><br>${from}</div>
+                                    <div><strong>End:</strong><br>${to}</div>
+                                </div>
+                            </div>
+                            <div class="info-box">
+                                <h6>Status & Booking</h6>
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="status-badge ${statusClass}">${a.status}</span>
+                                </div>
+                                <div class="info-grid">
+                                    <div><strong>Booked:</strong><br>${new Date(a.bookingTime).toLocaleString()}</div>
+                                    <div><strong>Updated:</strong><br>${a.updatedTime ? new Date(a.updatedTime).toLocaleString() : 'N/A'}
+                                    </div>
+                                    <div><strong>Note:</strong><br>${a.note || '—'}</div>
+                                </div>
+                            </div>
+                            <div class="info-box">
+                                <h6>Booking For</h6>
+                                <p>${a.subProfile ? `${a.subProfile.name} (${a.subProfile.relation.name})` : 'Self'}</p>
+                            </div>
+                            ${a.subProfile ? `
+                            <div class="info-box">
+                                <h6>Sub-Profile Details</h6>
+                                <div class="info-grid">
+                                    <div><strong>Name:</strong><br>${a.subProfile.name}</div>
+                                    <div><strong>Relation:</strong><br>${a.subProfile.relation.name}</div>
+                                    <div><strong>Phone:</strong><br>${a.subProfile.phone}</div>
+                                </div>
+                            </div>` : ''}
+                        </div>
+                    </div>`;
+
+                        document.getElementById('appointmentModalBody').innerHTML = content;
+                        new bootstrap.Modal(document.getElementById('appointmentModal')).show();
+                        $('#loaderOverlay').hide();
+                    },
+                    error: function (xhr) {
+                        let msg = "Failed to load Appointments Details";
+                        if (xhr && xhr.responseJSON && xhr.responseText) {
+                            if (xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                msg = xhr.responseText;
+                            }
+                        }
+                        $('#loaderOverlay').hide();
+                        showToast(msg);
+                    }
+                });
+            }
+        }
+
+        function applyFilter(page) {
+            if (validateUser('patient')) {
+                $('#loaderOverlay').show();
+                const token = localStorage.getItem("aSessionId");
+                const role = localStorage.getItem("role");
+
+                const doctorName = document.getElementById('doctorName').value;
+                const appointmentDate = document.getElementById('appointmentDate').value;
+                const status = document.getElementById('status').value;
+                const sortBy = document.getElementById('sortBy').value;
+
+                let url = `${VIEW_ALL_APPOINTMENTS}?page=${page}&size=10&sort=${sortBy}`;
+                if (doctorName) url += `&name=${encodeURIComponent(doctorName)}`;
+                if (appointmentDate) url += `&date=${appointmentDate}`;
+                if (status) url += `&status=${status}`;
+
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    headers: { 'Authorization': "Bearer " + token },
+                    success: function (response, textStatus, jqXHR) {
+                        if (jqXHR.status === 204) {
+                            renderAppointments({ data: [], totalPages: 1, currentPage: 0, isFirstPage: true, isLastPage: true });
+                            $('#loaderOverlay').hide();
+                            return;
+                        }
+                        renderAppointments(response.content);
+                        $('#loaderOverlay').hide();
+                    },
+                    error: function (xhr) {
+                        let msg = "Failed to load Appointments";
+                        if (xhr && xhr.responseJSON && xhr.responseText) {
+                            if (xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                msg = xhr.responseText;
+                            }
+                        }
+                        showToast(msg);
+                        $('#loaderOverlay').hide();
+                    }
+                });
+            }
+        }
+
+        function renderAppointments(data) {
+            currentlyStayingPageNumber = data.currentPage;
+            let html = '<table class="table table-bordered table-striped table-hover"><thead><tr><th>ID</th><th>Doctor</th><th>Date</th><th>From</th><th>To</th><th>Status</th><th>Action</th></tr></thead><tbody>';
+            if (data.data.length === 0) {
+                html += '<tr><td colspan="7" class="text-center text-muted">No appointments found</td></tr>';
+            } else {
+                data.data.forEach(a => {
+                    html += `<tr>
+                            <td>${a.id}</td>
+                            <td>${a.doctorName}</td>
+                            <td>${a.date}</td>
+                            <td>${a.from}</td>
+                            <td>${a.to}</td>
+                            <td><span class="badge bg-${getStatusColor(a.status)}">${a.status}</span></td>
+                            <td>`;
+                    html += `<button class="btn btn-sm btn-outline-info action-btn" onclick="viewDetails(${a.id}, '${a.date}', '${a.from}', '${a.to}')">View</button>`;
+                    if (a.status === 'BOOKED' || a.status === 'APPROVED') {
+                        html += `<button class="btn btn-sm btn-outline-danger action-btn" onclick="cancelAppointment(${a.id})">Cancel</button>`;
+                    }
+                    html += `</td></tr>`;
+                });
+            }
+            html += '</tbody></table>';
+
+            // Pagination
+            html += '<nav class="d-flex justify-content-between align-items-center">';
+            html += '<ul class="pagination mb-0">';
+            if (!data.isFirstPage) {
+                html += `<li class="page-item"><button class="page-link" onclick="applyFilter(0)">«</button></li>`;
+                html += `<li class="page-item"><button class="page-link" onclick="applyFilter(${data.currentPage - 1})">‹</button></li>`;
+            }
+            for (let i = 0; i < data.totalPages; i++) {
+                html += `<li class="page-item ${i === data.currentPage ? 'active' : ''}"><button class="page-link" onclick="applyFilter(${i})">${i + 1}</button></li>`;
+            }
+            if (!data.isLastPage) {
+                html += `<li class="page-item"><button class="page-link" onclick="applyFilter(${data.currentPage + 1})">›</button></li>`;
+                html += `<li class="page-item"><button class="page-link" onclick="applyFilter(${data.totalPages - 1})">»</button></li>`;
+            }
+            html += '</ul>';
+
+            html += `<div class="goto-container"><input type="number" id="gotoPage" min="1" max="${data.totalPages}" class="form-control form-control-sm" style="width:80px;"> <button class="btn btn-sm btn-go" onclick="goToPage(${data.totalPages})">Go</button></div>`;
+            html += '</nav>';
+
+            document.getElementById('result').innerHTML = html;
+        }
+
+        function getStatusColor(status) {
+            switch (status) {
+                case 'BOOKED': return 'primary';
+                case 'APPROVED': return 'success';
+                case 'D_CANCELLED': return 'danger';
+                case 'P_CANCELLED': return 'warning';
+                case 'COMPLETED': return 'secondary';
+                default: return 'light';
+            }
+        }
+
+        function goToPage(maxPage) {
+            let page = parseInt(document.getElementById('gotoPage').value) - 1;
+            if (page >= 0 && page < maxPage) {
+                applyFilter(page);
+            } else {
+                alert('Invalid page number');
+            }
+        }
+
+        function cancelAppointment(id) {
+            if (validateUser('patient')) {
+                $('#loaderOverlay').show();
+                const token = localStorage.getItem("aSessionId");
+                const role = localStorage.getItem("role");
+
+                if (confirm('Are you sure you want to cancel appointment ID ' + id + '?')) {
+                    $.ajax({
+                        url: `${CHANGE_APPOINTMENT_STATUS}/${id}?status=P_CANCELLED`,
+                        method: 'PATCH',
+                        headers: { 'Authorization': "Bearer " + token },
+                        success: function (response) {
+                            showToast(response.message);
+                            applyFilter(currentlyStayingPageNumber);
+                            $('#loaderOverlay').hide();
+                        },
+                        error: function (xhr) {
+                            let msg = "Failed to cancel appointment";
+                            if (xhr && xhr.responseJSON && xhr.responseText) {
+                                if (xhr.responseJSON.message) {
+                                    msg = xhr.responseJSON.message;
+                                } else if (xhr.responseText) {
+                                    msg = xhr.responseText;
+                                }
+                            }
+
+                            $('#loaderOverlay').hide();
+                            showToast(msg);
+                        }
+                    });
+                }
+            }
+        }
+
+        window.onload = function () {
+            applyFilter(0);
+        }
+
+        function validateUser(requiredRole) {
+            const token = localStorage.getItem("aSessionId");
+            const role = localStorage.getItem("role");
+            const expiry = localStorage.getItem("tokenExpiry");
+            const now = new Date().getTime();
+
+            if (!token || !role) {
+                showToastAndRedirectTo("Unauthorized! Please login first.", 2000, "login.html");
+            } else if (!expiry || now > expiry) {
+                localStorage.removeItem("aSessionId");
+                localStorage.removeItem("role");
+                localStorage.removeItem("tokenExpiry");
+                showToastAndRedirectTo("Session expired. Please login again.", 2000, "login.html");
+            } else if (requiredRole !== role) {
+                showToastAndRedirectTo("You don't have access to this page.", 2000, "index.html");
+            } else {
+                return true;
+            }
+            return false;
+        }
+
+        function showToast(message) {
+            const snackbar = $("#snackbar");
+            snackbar.text(message).addClass("show");
+            setTimeout(() => {
+                snackbar.removeClass("show");
+            }, 3000);
+        }
+
+        function showToastAndRedirectTo(message, delay = 2000, redirect) {
+            const snackbar = $("#snackbar");
+            snackbar.text(message).addClass("show");
+
+            setTimeout(() => {
+                snackbar.removeClass("show");
+                window.location.replace(redirect);
+            }, delay);
+        }
+    </script>
+
+</body>
+
+</html>
