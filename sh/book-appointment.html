@@ -300,12 +300,16 @@
                             headers: {
                                 'Authorization': "Bearer " + token
                             },
-                            success: function (profiles) {
-                                savedProfiles = profiles.content;
-                                $('#subProfile').empty().append(`<option value="">-- Select --</option>`);
-                                savedProfiles.forEach(p => {
-                                    $('#subProfile').append(`<option value="${p.id}">${p.name} (${p.relation.name})</option>`);
-                                });
+                            success: function (profiles, status) {
+                                if (status == "nocontent") {
+                                    $('#subProfile').empty().append(`<option value="">No Sub Profile found</option>`);
+                                } else {
+                                    savedProfiles = profiles.content;
+                                    $('#subProfile').empty().append(`<option value="">-- Select --</option>`);
+                                    savedProfiles.forEach(p => {
+                                        $('#subProfile').append(`<option value="${p.id}">${p.name} (${p.relation.name})</option>`);
+                                    });
+                                }
                                 $('#loaderOverlay').hide();
                             },
                             error: function (xhr, status, error) {

@@ -28,6 +28,7 @@ SmartHealth/out/
 SmartHealth/.gradle/
 !SmartHealth/gradle/wrapper/gradle-wrapper.jar   # keep wrapper JAR
 *.log
+*.gz
 
 ### Frontend (Node / npm / yarn) ###
 sh/node_modules/
