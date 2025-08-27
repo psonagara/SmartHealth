@@ -54,6 +54,7 @@ SmartHealth/
    > ⚡ Tip: If you frequently modify mapper interfaces, enabling annotation processing in your IDE is recommended. Otherwise, you’ll need to rebuild the project every time via Gradle.
 
 ---
+
 ### Frontend (User & Admin)
 
 1. **Simple Hosting**  
@@ -102,3 +103,102 @@ SmartHealth/
         - [http://smarthealth](http://smarthealth)  
         - [http://admin.sh](http://admin.sh)  
         (or according to your chosen domain names)
+
+   >  Note: Change `BASE_API_URL` value according to your backend configuration. You will found `BASE_API_URL` inside `/sh/js/constant.js` and `/admin/assets/js/constant.js` files.
+
+---
+
+## ✨ Features
+
+### 🔑 Common
+- 🔒 Stateless session management using **JWT**
+- 🛡️ **Role-based access control** (Doctor, Patient, Admin)
+- ✅ Secure **Authentication & Authorization**
+
+---
+
+### 👩‍⚕️ Doctor Module
+- 👤 **Account Management**
+  - 📝 Register, 🔑 Login, 🚪 Logout
+  - 📊 Dashboard with key statistics
+  - 🧾 Profile management (👀 View & ✏️ Update profile, 🔐 Change password)
+
+- 📅 **Availability Management**
+  - ⚡ Generate availability slots using multiple modes:
+    - 🔄 **AUTO** (default auto generation)
+    - 📍 **CUSTOM_ONE_TIME**
+    - ♻️ **CUSTOM_CONTINUOUS**
+    - ✋ **MANUAL**
+  - 🔧 Update slot generation preferences anytime
+  - 🗑️ Bulk delete slots (with validations)
+  - 🔍 View availability slots with filters & pagination
+  - 📖 View detailed slot information
+
+- 📆 **Appointment Management**
+  - 👀 View appointments with filters & pagination
+  - 📄 View appointment details
+  - 🔄 Update appointment status (**Approved ✅, Completed 🎯, Cancelled ❌**)
+
+- 🌴 **Leave Management**
+  - ✍️ Apply for leave
+  - 📑 View applied leaves with filters & pagination
+
+---
+
+### 🧑‍🤝‍🧑 Patient Module
+- 👤 **Account Management**
+  - 📝 Register, 🔑 Login, 🚪 Logout
+  - 📊 Dashboard with appointment statistics
+  - 🧾 Profile management (👀 View & ✏️ Update profile, 🔐 Change password)
+
+- 🔍 **Doctor Search & Booking**
+  - 👨‍⚕️ Search doctors with filters & pagination
+  - 📅 View doctor availability slots
+  - 📌 Book appointments for self or relatives (sub-profiles)
+
+- 📆 **Appointment Management**
+  - 👀 View appointments with filters & pagination
+  - 📄 View appointment details
+  - ❌ Cancel appointments
+
+---
+
+### 🛠️ Admin Module
+- 👤 **Account Management**
+  - 📝 Register, 🔑 Login, 🚪 Logout
+  - 📊 Dashboard with real-time statistics (users, slots, appointments, leaves, holidays)
+
+- 👥 **User Management**
+  - 👩‍⚕️ View doctors & 🧑‍🤝‍🧑 patients with filters & pagination
+  - 🔄 Activate / Deactivate users
+  - 📄 View detailed user profiles
+
+- 📅 **Slot Management**
+  - 👀 View all availability slots with filters & pagination
+  - 🗑️ Delete slots
+  - 📖 View slot details
+
+- 📆 **Appointment Management**
+  - 👀 View all appointments with filters & pagination
+  - 📄 View appointment details
+  - 🔄 Update appointment status
+
+- 🌴 **Leave & Holiday Management**
+  - 📑 View leave requests (Doctors)
+  - ✅ Approve / ❌ Reject leave requests
+  - 🎉 Manage holidays (➕ Add / 🗑️ Delete with pagination)
+
+---
+
+### ⚙️ Backend Highlights
+- 🔐 **Spring Security** → Authentication & Authorization  
+- 🔑 **JWT** → Secure stateless session management  
+- 📘 **Swagger UI** → API visualization & testing  
+- 🗄️ **Spring Data JPA** → Database interaction  
+- 🌐 **Spring Web** → RESTful API development  
+- 🔄 **MapStruct** → DTO ↔ Entity mapping  
+- ✨ **Lombok** → Boilerplate code reduction  
+- 📊 **JaCoCo** → Test coverage reporting  
+- 🧪 **JUnit** → Unit & integration testing  
+
+---
