@@ -205,7 +205,7 @@ class AppointmentServiceImplTest {
 		
 		// 8. Case when patient booking for today's slot but time is in past
 		availability.setDate(today);
-		availability.setEndTime(LocalTime.now().minusMinutes(8));
+		availability.setEndTime(LocalTime.now().minusMinutes(2));
 		availabilityException = assertThrows(AvailabilityException.class, ()->appointmentService.bookAppointment(request));
 		assertEquals(IExceptionConstants.CANT_BOOK_PAST_SLOTS, availabilityException.getMessage());
 

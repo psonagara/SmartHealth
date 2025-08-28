@@ -78,9 +78,16 @@ $(document).ready(function () {
                     }
                 },
                 error: function (xhr) {
+                    let msg = "Failed to load profile.";
+                    if (xhr && xhr.responseJSON && xhr.responseText) {
+                        if (xhr.responseJSON.message) {
+                            msg = xhr.responseJSON.message;
+                        } else if (xhr.responseText) {
+                            msg = xhr.responseText;
+                        }
+                    }
+                    showToast(msg);
                     $('#loaderOverlay').hide();
-                    const msg = xhr.responseJSON?.message || "Failed to load profile.";
-                    alert(msg);
                     window.location.href = document.referrer || 'index.html';
                 }
             });
@@ -386,9 +393,17 @@ $(document).ready(function () {
                     location.reload();
                 }, 2000);
             },
-            error: function () {
+            error: function (xhr) {
+                let msg = "Failed to update profile picture";
+                        if (xhr && xhr.responseJSON && xhr.responseText) {
+                            if (xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            } else if (xhr.responseText) {
+                                msg = xhr.responseText;
+                            }
+                        }
                 $('#loaderOverlay').hide();
-                showToast(xhr.responseJSON.message);
+                showToast(msg);
             },
         });
     }
