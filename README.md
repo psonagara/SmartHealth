@@ -202,3 +202,29 @@ SmartHealth/
 - 🧪 **JUnit** → Unit & integration testing  
 
 ---
+
+## 📘 Swagger UI
+
+Swagger UI is integrated for **interactive API documentation**.  
+It allows you to:
+
+- 📖 **Explore** all available REST APIs  
+- 🧪 **Test** endpoints directly from the browser  
+- 📂 View request/response **schemas** and **parameters**
+
+### 🔗 Access
+Once your backend is running, open:  
+👉 [http://localhost:9902/swagger-ui.html](http://localhost:9902/swagger-ui.html)  
+
+---
+
+### ⚠️ Important (JWT Authentication)
+Most of our APIs require a **JWT token** in the request header:  
+Authorization: Bearer <your_token>
+Currently, the Swagger setup does **not include an input field for headers**, so you’ll need to configure Swagger/OpenAPI for **header-based authentication** before you can test secured endpoints directly from Swagger UI.  
+Until then, use an API client like **Postman** or **cURL** for testing JWT-protected APIs.
+
+---
+
+### 📸 Screenshot
+![Swagger UI](docs/swagger-ui.png)
