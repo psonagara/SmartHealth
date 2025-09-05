@@ -137,12 +137,10 @@
         </div>
         <div class="sidebar" id="sidebar">
 
-            <!-- Loader Overlay -->
-            <div id="loaderOverlay" class="loader-overlay" style="display: none;">
-                <div class="spinner"></div>
-            </div>
-
-
+        </div>
+        <!-- Loader Overlay -->
+        <div id="loaderOverlay" class="loader-overlay" style="display: none;">
+            <div class="spinner"></div>
         </div>
         <div class="main-panel">
             <div class="content">
@@ -264,7 +262,7 @@
                         <div id="patientFilter" class="management-card">
                             <h5 class="mb-3" id="patientFilterText">+ Filter Patients</h5>
                             <div id="patientFilterFields">
-                                
+
                                 <div class="row filter-row">
                                     <div class="col-md-2">
                                         <label class="filter-label">ID</label>
@@ -440,7 +438,7 @@
             };
 
             if (validateUser('admin')) {
-$('#loaderOverlay').show();
+                $('#loaderOverlay').show();
                 $.ajax({
                     url: SEARCH_DOCTOR + '?page=' + page,
                     headers: { 'Authorization': getBearerToken() },
