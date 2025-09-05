@@ -74,51 +74,80 @@
         margin-bottom: 1rem;
       }
     }
-     /* Snackbar (Toast) */
-        #snackbar {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: #000000;
-            color: #ffffff;
-            text-align: center;
-            border-radius: 4px;
-            padding: 16px;
-            position: fixed;
-            z-index: 999;
-            left: 50%;
-            bottom: 30px;
-            font-size: 17px;
-            transform: translateX(-50%);
-        }
 
-        #snackbar.show {
-            visibility: visible;
-            animation: fadein 0.5s, fadeout 0.5s 2.5s;
-        }
+    /* Snackbar (Toast) */
+    #snackbar {
+      visibility: hidden;
+      min-width: 250px;
+      background-color: #000000;
+      color: #ffffff;
+      text-align: center;
+      border-radius: 4px;
+      padding: 16px;
+      position: fixed;
+      z-index: 999;
+      left: 50%;
+      bottom: 30px;
+      font-size: 17px;
+      transform: translateX(-50%);
+    }
 
-        @keyframes fadein {
-            from {
-                bottom: 0;
-                opacity: 0;
-            }
+    #snackbar.show {
+      visibility: visible;
+      animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    }
 
-            to {
-                bottom: 30px;
-                opacity: 1;
-            }
-        }
+    @keyframes fadein {
+      from {
+        bottom: 0;
+        opacity: 0;
+      }
 
-        @keyframes fadeout {
-            from {
-                bottom: 30px;
-                opacity: 1;
-            }
+      to {
+        bottom: 30px;
+        opacity: 1;
+      }
+    }
 
-            to {
-                bottom: 0;
-                opacity: 0;
-            }
-        }
+    @keyframes fadeout {
+      from {
+        bottom: 30px;
+        opacity: 1;
+      }
+
+      to {
+        bottom: 0;
+        opacity: 0;
+      }
+    }
+
+    .loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      /* background-color: rgba(0, 0, 0, 0.3); Semi-transparent */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #3498db;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
   </style>
 </head>
 
@@ -179,6 +208,11 @@
               </div>
             </div>
 
+            <!-- Loader Overlay -->
+            <div id="loaderOverlay" class="loader-overlay" style="display: none;">
+              <div class="spinner"></div>
+            </div>
+
             <div class="section-title mt-4">Sub-Profiles</div>
             <ul id="subs" class="list-subs info-value ps-3">
               <!-- Sub-profiles listed here -->
@@ -197,6 +231,7 @@
     $(function () {
       const id = new URLSearchParams(location.search).get('id');
       if (validateUser('admin')) {
+        $('#loaderOverlay').show();
         $.ajax({
           url: `${VIEW_PATIENT_DETAILS}?id=${id}`,
           headers: { 'Authorization': getBearerToken() },
@@ -225,18 +260,20 @@
             } else {
               $('#subs').append('<li>No Sub-Profiles</li>');
             }
+            $('#loaderOverlay').hide();
           },
-        error: function (xhr, status, error) {
-          let msg = "Failed to load patient details";
+          error: function (xhr, status, error) {
+            let msg = "Failed to load patient details";
             if (xhr && xhr.responseJSON && xhr.responseText) {
-                            if (xhr.responseJSON.message) {
-                                msg = xhr.responseJSON.message;
-                            } else if (xhr.responseText) {
-                                msg = xhr.responseText;
-                            }
-                        }
-                        showToast(msg);
-        }
+              if (xhr.responseJSON.message) {
+                msg = xhr.responseJSON.message;
+              } else if (xhr.responseText) {
+                msg = xhr.responseText;
+              }
+            }
+            showToast(msg);
+            $('#loaderOverlay').hide();
+          }
         });
       }
     });
