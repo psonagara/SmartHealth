@@ -251,8 +251,61 @@ Include jacocoTestReport at the end of command to generate test report.
 
 📂 Report Location
 
-After execution, you can find the report at: `build/reports/jacoco/test/html/index.html`
-Open the above file in your browser to explore detailed coverage (classes, methods, lines, branches).
+After execution, you can find the report at: `build/reports/jacoco/test/html/index.html`.
+Open the file in your browser to explore detailed coverage (classes, methods, lines, branches).
 
 ### 📸 Screenshot
 ![Jacoco Test Report](docs/jacocoTestReport.png)
+
+
+---
+
+## 🧑‍🤝‍🧑 Patient Module Screenshots
+
+### 🏠 Patient Dashboard
+- Displays **upcoming appointments** and key **statistics** at a glance.  
+- Provides a quick overview of bookings, completed visits, and cancellations.  
+
+📸 Screenshot  
+![Patient Dashboard](docs/patient_dashboard.png)
+
+---
+
+### 👤 Patient Profile
+- View and update **personal details** (name, email, phone, height, weight, etc.).  
+- Upload / change **profile picture**.  
+- Update password for secure login.  
+
+📸 Screenshot  
+![Patient Profile](docs/patient-profile.png)
+
+---
+
+### 🔍 Search Doctor
+- Search for doctors using **filters** (specialization, name, degree, availability, etc.).  
+- Results are **paginated** for smooth browsing.
+
+📸 Screenshot  
+![Search Doctor](docs/patient-search-doctor.png)
+
+---
+
+### 📅 Book Appointment
+- View **doctor availability slots** in real-time.  
+- Select a preferred date & time to book.  
+- Option to book for **self** or for a **relative (sub-profile)**.  
+
+📸 Screenshot
+![View Available Slots](docs/view_available_slots.png)
+![Book Appointment](docs/patient-book-appointment.png)
+
+---
+
+### 📆 My Appointments
+- List of all appointments with **filters & pagination**.  
+- View detailed appointment information.  
+- Option to **cancel appointment** if needed.  
+
+📸 Screenshot  
+![My Appointments](docs/patient-appointments.png)
+![Appointment Details](docs/patient-appointment-details.png)
