@@ -214,7 +214,7 @@ It allows you to:
 
 ### 🔗 Access
 Once your backend is running, open:  
-👉 [http://localhost:9902/swagger-ui.html](http://localhost:9902/swagger-ui.html)  
+👉 [http://localhost:9902/swagger-ui.html](http://localhost:9902/swagger-ui/index.html)  
 
 ---
 
@@ -228,3 +228,30 @@ Until then, use an API client like **Postman** or **cURL** for testing JWT-prote
 
 ### 📸 Screenshot
 ![Swagger UI](docs/swagger-ui.png)
+
+
+---
+
+## 📊 JaCoCo Test Report
+
+We use **JaCoCo** to measure **unit and integration test coverage** across the project.  
+It provides detailed reports in both **HTML** and **XML** formats.
+
+### ▶️ Generate Report
+Run the following Gradle commands from the project root:
+Include jacocoTestReport at the end of command to generate test report.
+
+```bash
+# Clean, build, run tests and generate test report
+./gradlew clean build jacocoTestReport
+
+# Run tests and generate test report
+./gradlew test jacocoTestReport
+
+📂 Report Location
+
+After execution, you can find the report at: `build/reports/jacoco/test/html/index.html`
+Open the above file in your browser to explore detailed coverage (classes, methods, lines, branches).
+
+### 📸 Screenshot
+![Jacoco Test Report](docs/jacocoTestReport.png)
