@@ -247,6 +247,7 @@ Include jacocoTestReport at the end of command to generate test report.
 
 # Run tests and generate test report
 ./gradlew test jacocoTestReport
+```
 
 📂 Report Location
 
