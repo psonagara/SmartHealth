@@ -272,12 +272,13 @@ Open the file in your browser to explore detailed coverage (classes, methods, li
 ---
 
 ### 👤 Patient Profile
-- View and update **personal details** (name, email, phone, height, weight, etc.).  
+- View and update **personal details** (name, dob, height, weight, etc.).  
 - Upload / change **profile picture**.  
 - Update password for secure login.  
 
 📸 Screenshot  
 ![Patient Profile](docs/patient-profile.png)
+![Update Password](docs/change-password.png)
 
 ---
 
