@@ -310,3 +310,64 @@ Open the file in your browser to explore detailed coverage (classes, methods, li
 📸 Screenshot  
 ![My Appointments](docs/patient-appointments.png)
 ![Appointment Details](docs/patient-appointment-details.png)
+
+---
+
+## 👩‍⚕️ Doctor Module Screenshots
+
+### 🏠 Doctor Dashboard
+- Displays **today’s appointments**, slot statistics, and quick insights.  
+- Helps doctors manage their day efficiently.
+
+📸 Screenshot  
+![Doctor Dashboard](docs/doctor-dashboard.png)
+
+---
+
+### 👤 Doctor Profile
+- View and update **personal details** (name, email, phone, degree, experience, etc.).  
+- Upload / change **profile picture**.  
+- Update password for secure login.  
+
+📸 Screenshot  
+![Doctor Profile](docs/doctor-profile.png)
+![Update Password](docs/change-password.png)
+
+---
+
+### 📅 Manage Availability
+- Generate availability slots using multiple modes:  
+  - 🔄 **AUTO**  
+  - 📍 **CUSTOM_ONE_TIME**  
+  - ♻️ **CUSTOM_CONTINUOUS**  
+  - ✋ **MANUAL**  
+- View generated slots with **filters & pagination**.  
+- Delete unwanted slots or update preferences anytime.  
+
+📸 Screenshot  
+![Generate Slots](docs/generate-slots.png)
+
+![Delete Slots](docs/delete-slots.png)
+
+![View Slots](docs/view-slots.png)
+
+---
+
+### 📆 My Appointments
+- View appointments booked by patients in available slots.  
+- Access detailed information for each appointment.  
+- Change appointment status (**Approve ✅, Complete 🎯, Cancel ❌**).  
+
+📸 Screenshot  
+![Doctor Appointments](docs/doctor-appointments.png)
+![Appointment Details](docs/doctor-appointment-details.png)
+
+---
+
+### 🌴 Leave Management
+- Apply for leave (single or multiple days).  
+- View applied leaves with **filters & pagination**.  
+- Leave requests are sent to **Admin** for approval/rejection.  
+
+📸 Screenshot  
+![Doctor Leaves](docs/doctor-leaves.png)
