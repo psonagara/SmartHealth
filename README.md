@@ -1,4 +1,11 @@
-# SmartHealth
+# 🏥 SmartHealth - Healthcare Appointment Booking System (Spring Boot, Java, JWT, MySQL)
+
+[![Java](https://img.shields.io/badge/Java-17-blue?logo=java&logoColor=white)](https://www.oracle.com/java/)  
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen?logo=springboot)](https://spring.io/projects/spring-boot)  
+[![Database](https://img.shields.io/badge/Database-MySQL-orange?logo=mysql&logoColor=white)](https://www.mysql.com/)  
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)  
+
+---
 
 SmartHealth project containing:
 
@@ -7,10 +14,10 @@ SmartHealth project containing:
 - **Admin Frontend (HTML, CSS and JavaScript)** → `admin/`
 
 ## 📂 Structure
-SmartHealth/
-├─ SmartHealth/ → Spring Boot backend
-├─ sh/ → User frontend
-├─ admin/ → Admin frontend
+SmartHealth/  
+  ├─ SmartHealth/ → Spring Boot backend  
+  ├─ sh/ → User frontend  
+  ├─ admin/ → Admin frontend
 
 ## 🚀 Getting Started
 
@@ -48,7 +55,8 @@ SmartHealth/
         ```  
         and checking if the `MapperImpl` classes are generated under  
         `build/generated/sources/annotationProcessor/java/main/com/ps/mapper/`.  
-        If generated, the application should start.  
+        If generated, the application should start. You may need to link source file as above location based on your IDE.
+     
      b) Enabling **Annotation Processing** in your IDE settings.  
 
    > ⚡ Tip: If you frequently modify mapper interfaces, enabling annotation processing in your IDE is recommended. Otherwise, you’ll need to rebuild the project every time via Gradle.
