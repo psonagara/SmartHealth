@@ -401,7 +401,7 @@ Open the file in your browser to explore detailed coverage (classes, methods, li
 ### 👨‍⚕️ Manage Doctors  
 - View all registered **doctors** with filters & pagination.  
 - **Activate / Deactivate** doctors.  
-- Access detailed **doctor profiles** and related appointments.  
+- Access detailed **doctor profiles**.
 
 📸 Screenshot  
 ![Manage Doctors](docs/admin-doctor-users.png)  
@@ -412,7 +412,7 @@ Open the file in your browser to explore detailed coverage (classes, methods, li
 ### 🧑‍🤝‍🧑 Manage Patients  
 - View all registered **patients** with filters & pagination.  
 - **Activate / Deactivate** patients.  
-- Access detailed **patient profiles** and their appointments.  
+- Access detailed **patient profiles**.
 
 📸 Screenshot  
 ![Manage Patients](docs/admin-patient-users.png)  
@@ -423,7 +423,6 @@ Open the file in your browser to explore detailed coverage (classes, methods, li
 ### 📅 Manage Slots  
 - View all **doctor availability slots**.  
 - **Delete** slots if required.  
-- Delete slots.  
 - View details about slot.
 
 📸 Screenshot  
