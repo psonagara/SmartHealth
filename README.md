@@ -325,7 +325,7 @@ Open the file in your browser to explore detailed coverage (classes, methods, li
 ---
 
 ### 👤 Doctor Profile
-- View and update **personal details** (name, email, phone, degree, experience, etc.).  
+- View and update **personal details** (name, dob, degree, experience, etc.).  
 - Upload / change **profile picture**.  
 - Update password for secure login.  
 
@@ -371,3 +371,93 @@ Open the file in your browser to explore detailed coverage (classes, methods, li
 
 📸 Screenshot  
 ![Doctor Leaves](docs/doctor-leaves.png)
+
+
+---
+
+## 🛡️ Admin Module Screenshots  
+
+### 🖥️ Admin Dashboard  
+- Displays overall **platform statistics** including doctors, patients, appointments, and system activity.  
+- Provides quick insights for **platform monitoring**.  
+
+📸 Screenshot  
+![Admin Dashboard](docs/admin-dashboard-1.png)  
+![Admin Dashboard](docs/admin-dashboard-2.png)  
+
+---
+
+### 👤 Admin Profile
+- View and update **personal details** (name).  
+- Upload / change **profile picture**.  
+- Update password for secure login.  
+
+📸 Screenshot  
+![Admin Profile](docs/admin-profile.png)
+![Update Password](docs/admin-change-password.png)
+
+---
+
+### 👨‍⚕️ Manage Doctors  
+- View all registered **doctors** with filters & pagination.  
+- **Activate / Deactivate** doctors.  
+- Access detailed **doctor profiles** and related appointments.  
+
+📸 Screenshot  
+![Manage Doctors](docs/admin-doctor-users.png)  
+![Doctor Details](docs/admin-doctor-details.png)  
+
+---
+
+### 🧑‍🤝‍🧑 Manage Patients  
+- View all registered **patients** with filters & pagination.  
+- **Activate / Deactivate** patients.  
+- Access detailed **patient profiles** and their appointments.  
+
+📸 Screenshot  
+![Manage Patients](docs/admin-patient-users.png)  
+![Patient Details](docs/admin-patient-details.png)  
+
+---
+
+### 📅 Manage Slots  
+- View all **doctor availability slots**.  
+- **Delete** slots if required.  
+- Delete slots.  
+- View details about slot.
+
+📸 Screenshot  
+![Manage Slots](docs/admin-view-slots.png)  
+![Slots Details](docs/admin-slot-details.png)  
+
+---
+
+### 📋 Manage Appointments  
+- View all **appointments across the platform**.  
+- **Filter, sort, and paginate** appointments.  
+- Update appointment status: **Approve, Cancel, Complete**. 
+- View Appointment details. 
+
+📸 Screenshot  
+![Manage Appointments](docs/admin-view-appointments.png)  
+![Appointment Details](docs/admin-appointment-details.png)  
+
+---
+
+### 🏖️ Manage Holidays  
+- ➕ Add holidays (festivals, national holidays, etc.).  
+- ❌ Delete holidays.  
+- Ensures **no slots are generated** on holidays.  
+
+📸 Screenshot  
+![Manage Holidays](docs/admin-manage-holidays.png)  
+
+---
+
+### 🩺 Doctor Leave Management  
+- ✅ Approve / ❌ Reject doctor leave requests.  
+- On approval, system **auto-cancels slots & appointments**.  
+- Maintains smooth doctor **availability management**.
+
+📸 Screenshot  
+![Doctor Leave Management](docs/admin-manage-leave.png)  
